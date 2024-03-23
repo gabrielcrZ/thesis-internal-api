@@ -67,6 +67,10 @@ const orderModel = mongoose.model(
         type: String,
         required: [true, "No status provided for the shipment!"],
       },
+      lastUpdatedBy: {
+        type: String,
+        required: [true, "No last updater provided for the shipment!"],
+      },
     },
     {
       timestamps: true,
@@ -78,9 +82,13 @@ const ordersHistoryModel = mongoose.model(
   "OrdersUpdate",
   new mongoose.Schema(
     {
+      operationType: {
+        type: String,
+        required: [true, "No operation type provided for the update"]
+      },
       orderId: {
         type: String,
-        required: [true, "No order Id was provided for the shipment!"],
+        required: [true, "No order Id was provided for the update!"],
       },
       clientEmail: {
         type: String,
@@ -92,11 +100,11 @@ const ordersHistoryModel = mongoose.model(
       },
       currentLocation: {
         type: String,
-        required: [true, "No current location provided for the shipment!"],
+        required: [true, "No current location provided for the update!"],
       },
       currentStatus: {
         type: String,
-        required: [true, "No status provided for the shipment!"],
+        required: [true, "No status provided for the update!"],
       },
       updatedBy: {
         type: String,

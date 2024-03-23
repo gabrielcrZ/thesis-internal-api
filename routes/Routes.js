@@ -6,17 +6,12 @@ import {
   getOrders,
   getOrder,
 } from "../controllers/OrdersController.js";
-import {
-  tokenRequestHandler,
-  authorizationHandler,
-  newClientHandler,
-} from "../middlewares/Auth.js";
 
 const router = Router();
-router.route("/add-client").post(newClientHandler, addClient);
-router.route("/get-token").post(tokenRequestHandler, getToken);
-router.route("/add-order").post(authorizationHandler, addOrder);
-router.route("/get-orders").get(authorizationHandler, getOrders);
-router.route("/get-order/:id").get(authorizationHandler, getOrder);
+router.route("/get-clients").post(addClient);
+router.route("/get-token").post(getToken);
+router.route("/add-order").post(addOrder);
+router.route("/get-orders").get(getOrders);
+router.route("/get-order/:id").get(getOrder);
 
 export default router;

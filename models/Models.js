@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const clientModel = mongoose.model(
   "Client",
   new mongoose.Schema({
-    clientDetails: {
+    email: {
       type: String,
       required: [true, "No email provided!"],
       match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g, "Email address is invalid!"],
@@ -32,20 +32,48 @@ const orderModel = mongoose.model(
   "Order",
   new mongoose.Schema(
     {
-      contactDetails: {
-        type: [Object],
-        required: [true, "No contact details provided!"],
-      },
       products: {
-        type: [Object],
+        type: [
+          {
+            productDescription: String,
+            productWeight: String,
+            _id: false,
+          },
+        ],
         required: [true, "A list of products is required!"],
       },
       pickupDetails: {
-        type: Object,
+        type: {
+          pickupCountry: String,
+          pickupCity: String,
+          pickupAddress: String,
+          pickupRegion: String,
+          pickupId: String,
+          pickupStatus: String,
+          pickupClient: {
+            clientEmail: String,
+            clientName: String,
+            clientPhone: String,
+          },
+          _id: false,
+        },
         required: [true, "Pickup details were not provided!"],
       },
       shippingDetails: {
-        type: Object,
+        type: {
+          shippingCountry: String,
+          shippingCity: String,
+          shippingAddress: String,
+          shippingRegion: String,
+          shippingId: String,
+          shippingStatus: String,
+          shippingClient: {
+            clientEmail: String,
+            clientName: String,
+            clientPhone: String,
+          },
+          _id: false,
+        },
         required: [true, "No shipping details were provided!"],
       },
       currentStatus: {
@@ -97,6 +125,18 @@ const ordersHistoryModel = mongoose.model(
       currentStatus: {
         type: String,
         required: [true, "No status provided for the update!"],
+      },
+      pickupId: {
+        type: String,
+      },
+      pickupStatus: {
+        type: String,
+      },
+      shippingId: {
+        type: String,
+      },
+      shippingStatus: {
+        type: String,
       },
       updatedBy: {
         type: String,

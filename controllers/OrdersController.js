@@ -35,13 +35,3 @@ export const getOrder = async (req, res) => {
     });
   }
 };
-
-export const updateOrder = async (req, res) => {
-  try {
-    let existingOrder = orderModel.findOne({ _id: req.params.id });
-  } catch (error) {
-    res.status(500).json({
-      msg: error.message,
-    });
-  }
-};

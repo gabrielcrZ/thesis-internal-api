@@ -1,93 +1,71 @@
-export const mapCancelUpdate = (cancelUpdate, existingOrder) => {
+export const mapCancelUpdate = (updatedOrder) => {
   return {
-    currentLocation: existingOrder.currentLocation,
-    currentStatus: "Cancelled",
-    updatedBy: existingOrder.clientEmail,
-    additionalInfo: "Order was cancelled by the client!",
-    ...cancelUpdate,
+    operationType: "Cancel",
+    orderId: updatedOrder._id,
+    updatedBy: updatedOrder.lastUpdatedBy,
+    additionalInfo: "Order has been cancelled!",
   };
 };
 
-export const mapAssignPickup = (existingOrder, updateRequest) => {
+export const mapAssignPickup = (updatedOrder) => {
   return {
-    operationType: updateRequest.operationType,
-    orderId: existingOrder.id,
-    currentLocation: `${existingOrder.pickupDetails.pickupCity}, ${existingOrder.pickupDetails.pickupCountry}`,
-    currentStatus: "In pickup process",
-    pickupId: updateRequest.pickupId,
-    pickupStatus: "Assigned for pickup",
-    shippingId: null,
-    shippingStatus: "Not assigned",
-    updatedBy: updateRequest.updatedBy,
+    operationType: "Assign pickup",
+    orderId: updatedOrder.id,
+    updatedBy: updatedOrder.lastUpdatedBy,
+    additionalInfo: "Order has been assigned for pickup!",
   };
 };
 
-export const mapPickupSuccess = (existingOrder, updateRequest) => {
+export const mapPickupSuccess = (updatedOrder) => {
   return {
-    operationType: updateRequest.operationType,
-    orderId: existingOrder.id,
-    currentLocation: `In ${existingOrder.pickupDetails.pickupCountry} storage facility`,
-    currentStatus: "In local storage",
-    pickupId: null,
-    pickupStatus: "Success",
-    shippingId: null,
-    shippingStatus: "Not assigned",
-    updatedBy: updateRequest.updatedBy,
+    operationType: "Pickup success",
+    orderId: updatedOrder.id,
+    updatedBy: updatedOrder.lastUpdatedBy,
+    additionalInfo: "Order has been picked up successfully!",
   };
 };
 
-export const mapPickupFailure = (existingOrder, updateRequest) => {
+export const mapPickupFailure = (updatedOrder, failReason) => {
   return {
-    operationType: updateRequest.operationType,
-    orderId: existingOrder.id,
-    currentLocation: `${existingOrder.pickupDetails.pickupCity}, ${existingOrder.pickupDetails.pickupCountry}`,
-    currentStatus: "Failed to pickup",
-    pickupId: updateRequest.pickupId,
-    pickupStatus: "Failed",
-    shippingId: null,
-    shippingStatus: "Not assigned",
-    updatedBy: updateRequest.updatedBy,
+    operationType: "Pickup fail",
+    orderId: updatedOrder.id,
+    updatedBy: updatedOrder.lastUpdatedBy,
+    additionalInfo: failReason,
   };
 };
 
-export const mapAssignShipment = (existingOrder, updateRequest) => {
+export const mapAssignShipment = (updatedOrder) => {
   return {
-    operationType: updateRequest.operationType,
-    orderId: existingOrder.id,
-    currentLocation: `In ${existingOrder.pickupDetails.pickupCountry} storage facility`,
-    currentStatus: "In shipping process",
-    pickupId: null,
-    pickupStatus: "Success",
-    shippingId: updateRequest.shippingId,
-    shippingStatus: "Assigned for shipping",
-    updatedBy: updateRequest.updatedBy,
+    operationType: "Assign shipping",
+    orderId: updatedOrder.id,
+    updatedBy: updatedOrder.lastUpdatedBy,
+    additionalInfo: "Order has been assigned for shipping!",
   };
 };
 
-export const mapShipmentSuccess = (existingOrder, updateRequest) => {
+export const mapShipmentSuccess = (updatedOrder) => {
   return {
-    operationType: updateRequest.operationType,
-    orderId: existingOrder.id,
-    currentLocation: `${existingOrder.shippingDetails.shippingCity}, ${existingOrder.shippingDetails.shippingCountry}`,
-    currentStatus: `In ${existingOrder.shippingDetails.shippingCountry} storage facility`,
-    pickupId: null,
-    pickupStatus: "Success",
-    shippingId: updateRequest.shippingId,
-    shippingStatus: "Shipped",
-    updatedBy: updateRequest.updatedBy,
+    operationType: "Shipping success",
+    orderId: updatedOrder.id,
+    updatedBy: updatedOrder.lastUpdatedBy,
+    additionalInfo: "Order has been shipped successfully",
   };
-}
+};
 
-export const mapDeliverySuccess = (existingOrder, updateRequest) => {
+export const mapAssignDelivery = (updatedOrder) => {
   return {
-    operationType: updateRequest.operationType,
-    orderId: existingOrder.id,
-    currentLocation: `${existingOrder.shippingDetails.shippingAddress}, ${existingOrder.shippingDetails.shippingCity}, ${existingOrder.shippingDetails.shippingCountry}`,
-    currentStatus: `Delivered`,
-    pickupId: null,
-    pickupStatus: "Success",
-    shippingId: null,
-    shippingStatus: "Success",
-    updatedBy: updateRequest.updatedBy,
+    operationType: "Assign delivery",
+    orderId: updatedOrder.id,
+    updatedBy: updatedOrder.lastUpdatedBy,
+    additionalInfo: "Order has been assigned for delivery",
   };
-}
+};
+
+export const mapDeliverySuccess = (updatedOrder) => {
+  return {
+    operationType: "Delivery success",
+    orderId: updatedOrder.id,
+    updatedBy: updatedOrder.lastUpdatedBy,
+    additionalInfo: "Order has been successfully delivered to client",
+  };
+};

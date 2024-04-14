@@ -80,6 +80,10 @@ const orderModel = mongoose.model(
         type: String,
         required: [true, "No status provided for the shipment!"],
       },
+      currentLocation: {
+        type: String,
+        required: [true, "Order current location was not provided!"],
+      },
       estimatedRevenue: {
         type: String,
         required: [
@@ -109,34 +113,6 @@ const ordersHistoryModel = mongoose.model(
       orderId: {
         type: String,
         required: [true, "No order Id was provided for the update!"],
-      },
-      clientEmail: {
-        type: String,
-        required: [true, "No information regarding client email was provided"],
-        match: [
-          /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
-          "Email address is not valid!",
-        ],
-      },
-      currentLocation: {
-        type: String,
-        required: [true, "No current location provided for the update!"],
-      },
-      currentStatus: {
-        type: String,
-        required: [true, "No status provided for the update!"],
-      },
-      pickupId: {
-        type: String,
-      },
-      pickupStatus: {
-        type: String,
-      },
-      shippingId: {
-        type: String,
-      },
-      shippingStatus: {
-        type: String,
       },
       updatedBy: {
         type: String,

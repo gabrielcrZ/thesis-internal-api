@@ -1,4 +1,4 @@
-import { orderModel } from "../models/Models.js";
+import { orderModel, ordersHistoryModel } from "../models/Models.js";
 
 export const getOrders = async (req, res) => {
   try {
@@ -27,6 +27,25 @@ export const getOrder = async (req, res) => {
       .then((foundOrder) => {
         res.status(200).json({
           order: foundOrder,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const updateOrder = async (req, res) => {
+  try {
+    await orderModel
+      .findOneAndUpdate({ _id: req.params.id }, req.body.updates)
+      .then(async (updatedOrder) => {
+        await ordersHistoryModel.create({
+          operationType: "Force updated",
+          orderId: updatedOrder._id,
+          updatedBy: "Administrator",
+          additionalInfo: req.body.updateReason,
         });
       });
   } catch (error) {

@@ -128,4 +128,81 @@ const ordersHistoryModel = mongoose.model(
   )
 );
 
-export { clientModel, orderModel, ordersHistoryModel };
+const transportModel = mongoose.model(
+  "Transport",
+  new mongoose.Schema(
+    {
+      transportType: {
+        type: String,
+        required: [true, "No transport type was provided!"],
+      },
+      transportLocation: {
+        type: {
+          transportRegion: String,
+          transportCity: String,
+        },
+        required: [true, "No location was provided for this transport!"],
+      },
+      currentStatus: {
+        type: String,
+        required: [true, "Current status was not specified for this transport"],
+      },
+      transportCapabilities: {
+        type: {
+          canPickup: Boolean,
+          canShip: Boolean,
+          availableRegions: [String],
+          transportCapacity: String,
+        },
+        required: [true, "No transport capabilities were provided!"],
+      },
+      assignedShipment: {
+        type: {
+          shipmentId: String,
+          pickupId: String,
+          shipmentWeight: String,
+        },
+      },
+    },
+    {
+      timestamps: true,
+    }
+  )
+);
+
+const deliveryModel = mongoose.model(
+  "",
+  new mongoose.Schema(
+    {
+      placeOfDeparture: {
+        type: {
+          departureRegion: String,
+          departureCity: String,
+          departureAddress: String,
+        },
+        required: [
+          true,
+          "Departure information was not provided for this delivery!",
+        ],
+      },
+      placeOfDelivery: {
+        type: {
+          deliveryRegion: String,
+          deliveryCity: String,
+          deliveryAddress: String,
+        },
+        required: [true, "Delivery information was not provided!"],
+      },
+      currentStatus: {
+        type: String,
+        required: [true, "Current status was not provided for this delivery!"],
+      },
+      estimatedDeliveryCost: {
+        type: String,
+        required: [true, "Delivery could not be calculated!"],
+      },
+    },
+    { timestamps: true }
+  )
+);
+export { clientModel, orderModel, ordersHistoryModel, transportModel };

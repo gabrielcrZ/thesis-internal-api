@@ -141,6 +141,7 @@ const transportModel = mongoose.model(
           transportRegion: String,
           transportCity: String,
         },
+        _id: false,
         required: [true, "No location was provided for this transport!"],
       },
       currentStatus: {
@@ -153,7 +154,9 @@ const transportModel = mongoose.model(
           canShip: Boolean,
           availableRegions: [String],
           transportCapacity: String,
+          loadedPercent: String,
         },
+        _id: false,
         required: [true, "No transport capabilities were provided!"],
       },
       assignedShipment: {
@@ -162,6 +165,7 @@ const transportModel = mongoose.model(
           pickupId: String,
           shipmentWeight: String,
         },
+        _id: false,
       },
     },
     {
@@ -171,9 +175,13 @@ const transportModel = mongoose.model(
 );
 
 const deliveryModel = mongoose.model(
-  "",
+  "Delivery",
   new mongoose.Schema(
     {
+      deliveryType: {
+        type: String,
+        required: [true, "Delivery type was not specified!"],
+      },
       placeOfDeparture: {
         type: {
           departureRegion: String,
@@ -205,4 +213,10 @@ const deliveryModel = mongoose.model(
     { timestamps: true }
   )
 );
-export { clientModel, orderModel, ordersHistoryModel, transportModel };
+export {
+  clientModel,
+  orderModel,
+  ordersHistoryModel,
+  transportModel,
+  deliveryModel,
+};

@@ -69,3 +69,48 @@ export const mapDeliverySuccess = (updatedOrder) => {
     additionalInfo: "Order has been successfully delivered to client",
   };
 };
+
+export const mapAddNewTransport = (transportRequest) => {
+  return {
+    currentStatus: "Ready",
+    assignedShipment: null,
+    ...transportRequest,
+  };
+};
+
+export const mapUpdateTransport = (
+  updateTransportRequest,
+  existingTransport
+) => {
+  return {
+    deliveryType:
+      updateTransportRequest.deliveryType || existingTransport.deliveryType,
+    placeOfDeparture: {
+      departureRegion:
+        updateTransportRequest.placeOfDeparture.departureRegion ||
+        existingTransport.placeOfDeparture.departureRegion,
+      departureCity:
+        updateTransportRequest.placeOfDeparture.departureCity ||
+        existingTransport.placeOfDeparture.departureCity,
+      departureAddress:
+        updateTransportRequest.placeOfDeparture.departureAddress ||
+        existingTransport.placeOfDeparture.departureAddress,
+    },
+    placeOfDelivery: {
+      deliveryRegion:
+        updateTransportRequest.placeOfDelivery.deliveryRegion ||
+        existingTransport.placeOfDelivery.deliveryRegion,
+      deliveryCity:
+        updateTransportRequest.placeOfDelivery.deliveryCity ||
+        existingTransport.placeOfDelivery.deliveryCity,
+      deliveryAddress:
+        updateTransportRequest.placeOfDelivery.deliveryAddress ||
+        existingTransport.placeOfDelivery.deliveryAddress,
+    },
+    currentStatus:
+      updateTransportRequest.currentStatus || existingTransport.currentStatus,
+    estimatedDeliveryCost:
+      updateTransportRequest.estimatedDeliveryCost ||
+      existingTransport.estimatedDeliveryCost,
+  };
+};

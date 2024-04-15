@@ -2,8 +2,9 @@ import { orderModel, ordersHistoryModel } from "../models/Models.js";
 
 export const getOrders = async (req, res) => {
   try {
+    const filters = req.body.filters;
     await orderModel
-      .find()
+      .find({ filters })
       .sort("createdAt")
       .then((clientOrders) => {
         res.status(200).json({
@@ -22,7 +23,7 @@ export const getOrder = async (req, res) => {
   try {
     await orderModel
       .findOne({
-        id: req.orderId,
+        _id: req.params.id,
       })
       .then((foundOrder) => {
         res.status(200).json({

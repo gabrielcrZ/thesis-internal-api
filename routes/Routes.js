@@ -6,7 +6,7 @@ import {
 } from "../controllers/OrdersController.js";
 import {
   addTransport,
-  getTransport,
+  getTransports,
   getAvailableTransports,
   updateTransport,
 } from "../controllers/TransportsController.js";
@@ -21,9 +21,9 @@ router.route("/update-order").patch(updateOrder);
 
 //Transports
 router.route("/add-transport").post(addTransport);
-router.route("/get-transports").get(getTransport);
+router.route("/get-transports").get(getTransports);
 router.route("/get-available-transports").post(getAvailableTransports);
-router.route("/update-transports/:id").patch(updateTransport);
+router.route("/update-transport/:id").patch(updateTransport);
 
 // //Clients
 // router.route("/add-client").post(addClient);

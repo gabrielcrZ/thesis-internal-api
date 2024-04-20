@@ -15,7 +15,15 @@ import {
   getClients,
   getClient,
   updateClient,
+  deleteClient,
 } from "../controllers/ClientsController.js";
+import {
+  addDelivery,
+  getDeliveries,
+  getDelivery,
+  updateDelivery,
+  deleteDelivery,
+} from "../controllers/DeliveriesController.js";
 import { newClientHandler } from "../helpers/Handlers.js";
 
 const router = Router();
@@ -31,13 +39,20 @@ router.route("/get-transports").get(getTransports);
 router.route("/get-available-transports").post(getAvailableTransports);
 router.route("/update-transport/:id").patch(updateTransport);
 
-// //Clients
+//Clients
 router.route("/add-client").post(newClientHandler, addClient);
 router.route("/get-clients").post(getClients);
 router.route("/get-client/:id").get(getClient);
 router.route("/update-client/:id").patch(updateClient);
+router.route("/delete-client/:id").delete(deleteClient);
 
-// //Dashboard
+//Deliveries
+router.route("/add-delivery").post(addDelivery);
+router.route("/get-deliveries").post(getDeliveries);
+router.route("/get-delivery/:id").get(getDelivery);
+router.route("/update-delivery/:id").patch(updateDelivery);
+router.route("/delete-delivery/:id").delete(deleteDelivery);
+//Dashboard
 // router.route("/get-dashboard-metrics").get(getDashboardMetrics);
 
 export default router;

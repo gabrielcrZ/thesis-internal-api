@@ -188,6 +188,7 @@ const deliveryModel = mongoose.model(
           departureCity: String,
           departureAddress: String,
         },
+        _id: false,
         required: [
           true,
           "Departure information was not provided for this delivery!",
@@ -199,6 +200,7 @@ const deliveryModel = mongoose.model(
           deliveryCity: String,
           deliveryAddress: String,
         },
+        _id: false,
         required: [true, "Delivery information was not provided!"],
       },
       currentStatus: {

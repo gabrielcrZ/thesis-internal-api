@@ -1,6 +1,4 @@
-import {
-  mapAddNewTransport,
-} from "../helpers/PayloadMapper.js";
+import { mapAddNewTransport } from "../helpers/PayloadMapper.js";
 import { transportModel } from "../models/Models.js";
 
 export const addTransport = async (req, res) => {
@@ -65,7 +63,7 @@ export const updateTransport = async (req, res) => {
       .updateOne({ _id: req.params.id }, transportUpdates)
       .then(() => {
         res.status(200).json({
-          msg: `Transport ${req.params.id} has been updated`,
+          msg: `Transport ${req.params.id} h as been updated`,
           updates: transportUpdates,
         });
       });

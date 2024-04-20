@@ -1,4 +1,3 @@
-import { response } from "express";
 import { clientModel } from "../models/Models.js";
 
 export const addClient = async (req, res) => {
@@ -62,6 +61,24 @@ export const updateClient = async (req, res) => {
         res.status(200).json({
           msg: `Client ${req.params.id} has been update`,
           updates: clientUpdates,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const deleteClient = async (req, res) => {
+  try {
+    await clientModel
+      .deleteOne({
+        _id: req.params.id,
+      })
+      .then(() => {
+        res.status(200).json({
+          msg: `Client ${req.params.id} has been deleted`,
         });
       });
   } catch (error) {

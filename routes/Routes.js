@@ -10,7 +10,13 @@ import {
   getAvailableTransports,
   updateTransport,
 } from "../controllers/TransportsController.js";
-import { addClient } from "../controllers/ClientsController.js";
+import {
+  addClient,
+  getClients,
+  getClient,
+  updateClient,
+} from "../controllers/ClientsController.js";
+import { newClientHandler } from "../helpers/Handlers.js";
 
 const router = Router();
 //Orders
@@ -26,9 +32,10 @@ router.route("/get-available-transports").post(getAvailableTransports);
 router.route("/update-transport/:id").patch(updateTransport);
 
 // //Clients
-// router.route("/add-client").post(addClient);
-// router.route("/get-clients").get(getClients);
-// router.route("/get-client-information/:id").post(getClientInformation);
+router.route("/add-client").post(newClientHandler, addClient);
+router.route("/get-clients").post(getClients);
+router.route("/get-client/:id").get(getClient);
+router.route("/update-client/:id").patch(updateClient);
 
 // //Dashboard
 // router.route("/get-dashboard-metrics").get(getDashboardMetrics);

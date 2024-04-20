@@ -40,14 +40,21 @@ export const getOrder = async (req, res) => {
 export const updateOrder = async (req, res) => {
   try {
     await orderModel
-      .findOneAndUpdate({ _id: req.params.id }, req.body.updates)
+      .findOneAndUpdate({ _id: req.params.id }, req.body)
       .then(async (updatedOrder) => {
-        await ordersHistoryModel.create({
-          operationType: "Force updated",
-          orderId: updatedOrder._id,
-          updatedBy: "Administrator",
-          additionalInfo: req.body.updateReason,
-        });
+        await ordersHistoryModel
+          .create({
+            operationType: "Force updated",
+            orderId: updatedOrder._id,
+            updatedBy: "Administrator",
+            additionalInfo: req.body.updateReason,
+          })
+          .then(() => {
+            res.status(200).json({
+              msg: `Order ${updatedOrder._id} has been updated`,
+              updates: req.body,
+            });
+          });
       });
   } catch (error) {
     res.status(500).json({

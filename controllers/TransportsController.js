@@ -1,5 +1,4 @@
 import {
-  mapUpdateTransport,
   mapAddNewTransport,
 } from "../helpers/PayloadMapper.js";
 import { transportModel } from "../models/Models.js";
@@ -7,7 +6,6 @@ import { transportModel } from "../models/Models.js";
 export const addTransport = async (req, res) => {
   try {
     const newTransport = mapAddNewTransport(req.body);
-    console.log(newTransport);
     await transportModel.create(newTransport).then((addedOrder) => {
       res.status(200).json({
         msg: `Transport ${addedOrder._id} has been created!`,
@@ -15,7 +13,7 @@ export const addTransport = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      msg: error.msg,
+      msg: error.message,
     });
   }
 };
@@ -34,7 +32,7 @@ export const getTransports = async (req, res) => {
       });
   } catch (error) {
     res.status(500).json({
-      msg: error.msg,
+      msg: error.message,
     });
   }
 };
@@ -46,7 +44,7 @@ export const getAvailableTransports = async (req, res) => {
         currentStatus: "Ready",
       })
       .where("transportLocation.transportRegion", req.body.placeOfDeparture)
-      // .where(req.body.placeOfDelivery).in("transportCapabilities.availableRegions")
+      .in("transportCapabilities.availableRegions", req.body.placeOfDelivery)
       .then((transportsList) => {
         res.status(200).json({
           transports: transportsList,
@@ -55,7 +53,7 @@ export const getAvailableTransports = async (req, res) => {
       });
   } catch (error) {
     res.status(500).json({
-      msg: error.msg,
+      msg: error.message,
     });
   }
 };
@@ -63,23 +61,17 @@ export const getAvailableTransports = async (req, res) => {
 export const updateTransport = async (req, res) => {
   try {
     const transportUpdates = req.body;
-    const existingTransport = await transportModel.findOne({
-      _id: req.params.id,
-    });
-    const mappedTransportUpdates = mapUpdateTransport(
-      transportUpdates,
-      existingTransport
-    );
     await transportModel
-      .updateOne({ _id: req.params.id }, { mappedTransportUpdates })
+      .updateOne({ _id: req.params.id }, transportUpdates)
       .then(() => {
         res.status(200).json({
           msg: `Transport ${req.params.id} has been updated`,
+          updates: transportUpdates,
         });
       });
   } catch (error) {
     res.status(500).json({
-      msg: error.msg,
+      msg: error.message,
     });
   }
 };

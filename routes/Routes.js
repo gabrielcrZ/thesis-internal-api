@@ -9,6 +9,7 @@ import {
   getTransports,
   getAvailableTransports,
   updateTransport,
+  deleteTransport,
 } from "../controllers/TransportsController.js";
 import {
   addClient,
@@ -32,12 +33,14 @@ router.route("/get-orders").get(getOrders);
 router.route("/get-order/:id").get(getOrder);
 router.route("/update-order").patch(updateOrder);
 //Async updates are being handled in AsyncHandler.js
+//Async order cancel is handled in AsyncHandler.js
 
 //Transports
 router.route("/add-transport").post(addTransport);
-router.route("/get-transports").get(getTransports);
+router.route("/get-transports").post(getTransports);
 router.route("/get-available-transports").post(getAvailableTransports);
 router.route("/update-transport/:id").patch(updateTransport);
+router.route("/delete-transport/:id").delete(deleteTransport);
 
 //Clients
 router.route("/add-client").post(newClientHandler, addClient);

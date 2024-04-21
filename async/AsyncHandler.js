@@ -14,7 +14,6 @@ const handleOrderUpdate = async (messageBody) => {
   try {
     const existingOrder = await orderModel.findOne({
       _id: messageBody.orderId,
-      clientEmail: messageBody.clientEmail,
     });
 
     if (!existingOrder) {
@@ -109,7 +108,7 @@ const handlePickupSuccess = async (messageBody) => {
       }
     )
     .then(async (updatedOrder) => {
-      const cancelOrderUpdate = handlePickupSuccess(updatedOrder);
+      const cancelOrderUpdate = mapPickupSuccess(updatedOrder);
       await ordersHistoryModel.create(cancelOrderUpdate);
     });
 };

@@ -32,6 +32,10 @@ const orderModel = mongoose.model(
   "Order",
   new mongoose.Schema(
     {
+      clientId: {
+        type: String,
+        required: [true, "Client id is required for this order"],
+      },
       products: {
         type: [
           {

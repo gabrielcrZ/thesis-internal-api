@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
 
 const newClientHandler = async (req, res, next) => {
-  const clientCode = req.body.clientCode;
-  if (!clientCode) {
+  const { email, clientCode } = req.body;
+  if (!email || !clientCode) {
     return res.status(400).json({
-      msg: "Client code was not provided!",
+      msg: "Email or client code was not provided for the registration",
     });
   }
   const salt = await bcrypt.genSalt(10);

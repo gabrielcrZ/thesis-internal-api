@@ -4,10 +4,16 @@ import { transportModel } from "../models/Models.js";
 export const addTransport = async (req, res) => {
   try {
     const newTransport = mapAddNewTransport(req.body);
-    await transportModel.create(newTransport).then((addedOrder) => {
-      res.status(200).json({
-        msg: `Transport ${addedOrder._id} has been created!`,
-      });
+    await transportModel.create(newTransport).then((addedTransport) => {
+      if (!addedTransport) {
+        res.status(400).json({
+          msg: "Transport could not be added",
+        });
+      } else {
+        res.status(200).json({
+          msg: `Transport ${addedOrder._id} has been created!`,
+        });
+      }
     });
   } catch (error) {
     res.status(500).json({
@@ -18,9 +24,8 @@ export const addTransport = async (req, res) => {
 
 export const getTransports = async (req, res) => {
   try {
-    const filters = req.body.filters;
     await transportModel
-      .find({ filters })
+      .find(req.body)
       .sort("createdAt")
       .then((transportsList) => {
         res.status(200).json({
@@ -61,11 +66,39 @@ export const updateTransport = async (req, res) => {
     const transportUpdates = req.body;
     await transportModel
       .updateOne({ _id: req.params.id }, transportUpdates)
-      .then(() => {
-        res.status(200).json({
-          msg: `Transport ${req.params.id} h as been updated`,
-          updates: transportUpdates,
-        });
+      .then((updatedTransport) => {
+        if (updatedTransport.modifiedCount === 0) {
+          res.status(400).json({
+            msg: `Transport ${req.params.id} could not be updated or is invalid`,
+          });
+        } else {
+          res.status(200).json({
+            msg: `Transport ${req.params.id} has been updated`,
+            updates: transportUpdates,
+          });
+        }
+      });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const deleteTransport = async (req, res) => {
+  try {
+    await transportModel
+      .deleteOne({ _id: req.params.id })
+      .then((deletedTransport) => {
+        if (deletedTransport.getDeletedCount() === 0) {
+          res.status(400).json({
+            msg: `Transport ${req.params.id} could not be deleted or is invalid`,
+          });
+        } else {
+          res.status(200).json({
+            msg: `Transport ${req.params.id} has been deleted`,
+          });
+        }
       });
   } catch (error) {
     res.status(500).json({

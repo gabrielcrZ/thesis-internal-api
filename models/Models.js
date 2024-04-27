@@ -95,6 +95,10 @@ const orderModel = mongoose.model(
           "Estimated revenue could not be calculated for this order!",
         ],
       },
+      assignedTransport: {
+        type: String,
+        required: [true, "Transport has not been provided for this order!"],
+      },
       lastUpdatedBy: {
         type: String,
         required: [true, "No last updater provided for the shipment!"],
@@ -164,12 +168,18 @@ const transportModel = mongoose.model(
         required: [true, "No transport capabilities were provided!"],
       },
       assignedShipment: {
+        type: String,
+      },
+      contactPerson: {
         type: {
-          shipmentId: String,
-          pickupId: String,
-          shipmentWeight: String,
+          contactBadgeId: String,
+          contactPhone: String,
         },
         _id: false,
+        required: [
+          true,
+          "Contact person information is required for the transport",
+        ],
       },
     },
     {

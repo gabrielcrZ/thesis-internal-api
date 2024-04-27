@@ -48,6 +48,7 @@ const handleOrderUpdate = async (messageBody) => {
   }
 };
 
+// TO DO - Add logging for console.log cases
 const handleOrderCancel = async (messageBody) => {
   await orderModel
     .findOneAndUpdate(
@@ -67,165 +68,236 @@ const handleOrderCancel = async (messageBody) => {
 };
 
 const handleAssignPickup = async (messageBody) => {
-  await orderModel
-    .findOneAndUpdate(
-      {
-        _id: messageBody.orderId,
-        clientEmail: messageBody.clientEmail,
-      },
-      {
-        currentStatus: "In pickup process",
-        lastUpdatedBy: messageBody.updatedBy,
-        pickupDetails: {
-          pickupId: messageBody.pickupId,
-          pickupStatus: "Assigned for pickup",
-          ...pickupDetails,
-        },
+  try {
+    await orderModel.findById(messageBody.orderId).then(async (foundOrder) => {
+      if (!foundOrder) {
+        throw new Error(`No order with id ${messageBody.orderId} was found`);
+      } else {
+        foundOrder.currentStatus = "In pickup process";
+        foundOrder.lastUpdatedBy = messageBody.updatedBy;
+        foundOrder.pickupDetails.pickupId = messageBody.pickupId;
+        foundOrder.pickupDetails.pickupStatus = "Assigned for pickup";
+
+        await foundOrder.save().then(async (updatedOrder) => {
+          if (!updatedOrder) {
+            throw new Error(
+              `Something went wrong while updating order ${messageBody.orderId}`
+            );
+          } else {
+            await ordersHistoryModel
+              .create(mapAssignPickup(updatedOrder))
+              .then(() => {
+                console.log(
+                  `Order ${messageBody.orderId} has been assigned for pickup`
+                );
+              });
+          }
+        });
       }
-    )
-    .then(async (updatedOrder) => {
-      const cancelOrderUpdate = mapAssignPickup(updatedOrder);
-      await ordersHistoryModel.create(cancelOrderUpdate);
     });
+  } catch (error) {
+    console.log(error.message);
+  }
 };
 
 const handlePickupSuccess = async (messageBody) => {
-  await orderModel
-    .findOneAndUpdate(
-      {
-        _id: messageBody.orderId,
-        clientEmail: messageBody.clientEmail,
-      },
-      {
-        currentStatus: "Picked up from client",
-        lastUpdatedBy: messageBody.updatedBy,
-        pickupDetails: {
-          pickupId: null,
-          pickupStatus: "Success",
-          ...pickupDetails,
-        },
-        currentLocation: `In our local storage facility`,
+  try {
+    await orderModel.findById(messageBody.orderId).then(async (foundOrder) => {
+      if (!foundOrder) {
+        throw new Error(`No order with id ${messageBody.orderId} was found`);
+      } else {
+        foundOrder.currentStatus = "Picked up from client";
+        foundOrder.lastUpdatedBy = messageBody.updatedBy;
+        foundOrder.pickupDetails.pickupId = null;
+        foundOrder.pickupDetails.pickupStatus = "Success";
+        foundOrder.currentLocation = "In our local storage facility";
+
+        await foundOrder.save().then(async (updatedOrder) => {
+          if (!updatedOrder) {
+            throw new Error(
+              `Something went wrong while updating order ${messageBody.orderId}`
+            );
+          } else {
+            await ordersHistoryModel
+              .create(mapPickupSuccess(updatedOrder))
+              .then(() => {
+                console.log(
+                  `Order ${messageBody.orderId} was updated with pickupStatus: success`
+                );
+              });
+          }
+        });
       }
-    )
-    .then(async (updatedOrder) => {
-      const cancelOrderUpdate = mapPickupSuccess(updatedOrder);
-      await ordersHistoryModel.create(cancelOrderUpdate);
     });
+  } catch (error) {
+    console.log(error.message);
+  }
 };
 
 const handlePickupFailure = async (messageBody) => {
-  await orderModel
-    .findOneAndUpdate(
-      {
-        _id: messageBody.orderId,
-        clientEmail: messageBody.clientEmail,
-      },
-      {
-        currentStatus: "Failed to pickup from client",
-        lastUpdatedBy: messageBody.updatedBy,
-        pickupDetails: {
-          pickupStatus: "Failed",
-          ...pickupDetails,
-        },
+  try {
+    await orderModel.findById(messageBody.orderId).then(async (foundOrder) => {
+      if (!foundOrder) {
+        throw new Error(`No order with id ${messageBody.orderId} was found`);
+      } else {
+        foundOrder.currentStatus = "Failed to pickup from client";
+        foundOrder.lastUpdatedBy = messageBody.updatedBy;
+        foundOrder.pickupDetails.pickupStatus = "Failed";
+
+        await foundOrder.save().then(async (updatedOrder) => {
+          if (!updatedOrder) {
+            throw new Error(
+              `Something went wrong while updating order ${messageBody.orderId}`
+            );
+          } else {
+            await ordersHistoryModel
+              .create(mapPickupFailure(updatedOrder, messageBody.failReason))
+              .then(() => {
+                console.log(
+                  `Order ${messageBody.orderId} was updated with pickupStatus: failed`
+                );
+              });
+          }
+        });
       }
-    )
-    .then(async (updatedOrder) => {
-      const cancelOrderUpdate = mapPickupFailure(
-        updatedOrder,
-        messageBody.failReason
-      );
-      await ordersHistoryModel.create(cancelOrderUpdate);
     });
+  } catch (error) {
+    console.log(error.message);
+  }
 };
 
 const handleAssignShipping = async (messageBody) => {
-  await orderModel
-    .findOneAndUpdate(
-      {
-        _id: messageBody.orderId,
-        clientEmail: messageBody.clientEmail,
-      },
-      {
-        currentStatus: "Assign to be shipped",
-        lastUpdatedBy: messageBody.updatedBy,
-        shippingDetails: {
-          shippingId: messageBody.shippingId,
-          shippingStatus: "Assigned for shipping",
-        },
+  try {
+    await orderModel.findById(messageBody.orderId).then(async (foundOrder) => {
+      if (!foundOrder) {
+        throw new Error(`No order with id ${messageBody.orderId} was found`);
+      } else {
+        foundOrder.currentStatus = "Assigned to be shipped";
+        foundOrder.lastUpdatedBy = messageBody.updatedBy;
+        foundOrder.shippingDetails.shippingId = messageBody.shippingId;
+        foundOrder.shippingDetails.shippingStatus = "Assigned for shipping";
+
+        await foundOrder.save().then(async (updatedOrder) => {
+          if (!updatedOrder) {
+            throw new Error(
+              `Something went wrong while updating order ${messageBody.orderId}`
+            );
+          } else {
+            await ordersHistoryModel
+              .create(mapAssignShipment(updatedOrder))
+              .then(() => {
+                console.log(
+                  `Order ${messageBody.orderId} has been assigned for shipping`
+                );
+              });
+          }
+        });
       }
-    )
-    .then(async (updatedOrder) => {
-      const cancelOrderUpdate = mapAssignShipment(updatedOrder);
-      await ordersHistoryModel.create(cancelOrderUpdate);
     });
+  } catch (error) {
+    console.log(error.message);
+  }
 };
 
 const handleShippingSuccess = async (messageBody) => {
-  await orderModel
-    .findOneAndUpdate(
-      {
-        _id: messageBody.orderId,
-        clientEmail: messageBody.clientEmail,
-      },
-      {
-        currentStatus: "Shipping success",
-        lastUpdatedBy: messageBody.updatedBy,
-        shippingDetails: {
-          shippingId: null,
-          shippingStatus: "Shipped",
-        },
-        currentLocation: "In our destination's storage facility",
+  try {
+    await orderModel.findById(messageBody.orderId).then(async (foundOrder) => {
+      if (!foundOrder) {
+        throw new Error(`No order with id ${messageBody.orderId} was found`);
+      } else {
+        foundOrder.currentStatus = "Successfully shipped";
+        foundOrder.lastUpdatedBy = messageBody.updatedBy;
+        foundOrder.shippingDetails.shippingId = null;
+        foundOrder.shippingDetails.shippingStatus = "Success";
+        foundOrder.currentLocation = "In our destination's storage facility";
+
+        await foundOrder.save().then(async (updatedOrder) => {
+          if (!updatedOrder) {
+            throw new Error(
+              `Something went wrong while updating order ${messageBody.orderId}`
+            );
+          } else {
+            await ordersHistoryModel
+              .create(mapShipmentSuccess(updatedOrder))
+              .then(() => {
+                console.log(
+                  `Order ${messageBody.orderId} has been updated with shippingStatus: success`
+                );
+              });
+          }
+        });
       }
-    )
-    .then(async (updatedOrder) => {
-      const cancelOrderUpdate = mapShipmentSuccess(updatedOrder);
-      await ordersHistoryModel.create(cancelOrderUpdate);
     });
+  } catch (error) {
+    console.log(error.message);
+  }
 };
 
 const handleAssignDelivery = async (messageBody) => {
-  await orderModel
-    .findOneAndUpdate(
-      {
-        _id: messageBody.orderId,
-        clientEmail: messageBody.clientEmail,
-      },
-      {
-        currentStatus: "In delivery process",
-        lastUpdatedBy: messageBody.updatedBy,
-        pickupDetails: {
-          shippingId: messageBody.deliveryId,
-          shippingStatus: "Assigned for delivery",
-        },
+  try {
+    await orderModel.findById(messageBody.orderId).then(async (foundOrder) => {
+      if (!foundOrder) {
+        throw new Error(`No order with id ${messageBody.orderId} was found`);
+      } else {
+        foundOrder.currentStatus = "In delivery process";
+        foundOrder.lastUpdatedBy = messageBody.updatedBy;
+        foundOrder.shippingDetails.shippingId = messageBody.deliveryId;
+        foundOrder.shippingDetails.shippingStatus = "Assigned for delivery";
+
+        await foundOrder.save().then(async (updatedOrder) => {
+          if (!updatedOrder) {
+            throw new Error(
+              `Something went wrong while updating order ${messageBody.orderId}`
+            );
+          } else {
+            await ordersHistoryModel
+              .create(mapAssignDelivery(updatedOrder))
+              .then(() => {
+                console.log(
+                  `Order ${messageBody.orderId} has been assigned for delivery`
+                );
+              });
+          }
+        });
       }
-    )
-    .then(async (updatedOrder) => {
-      const cancelOrderUpdate = mapAssignDelivery(updatedOrder);
-      await ordersHistoryModel.create(cancelOrderUpdate);
     });
+  } catch (error) {
+    console.log(error.message);
+  }
 };
 
 const handleDeliverySuccess = async (messageBody) => {
-  await orderModel
-    .findOneAndUpdate(
-      {
-        _id: messageBody.orderId,
-        clientEmail: messageBody.clientEmail,
-      },
-      {
-        currentStatus: "Delivered to final destination",
-        lastUpdatedBy: messageBody.updatedBy,
-        shippingDetails: {
-          shippingId: null,
-          shippingStatus: "Success",
-        },
-        currentLocation: "At client's final destination",
+  try {
+    await orderModel.findById(messageBody.orderId).then(async (foundOrder) => {
+      if (!foundOrder) {
+        throw new Error(`No order with id ${messageBody.orderId} was found`);
+      } else {
+        foundOrder.currentStatus = "Delivered to final destination";
+        foundOrder.lastUpdatedBy = messageBody.updatedBy;
+        foundOrder.shippingDetails.shippingId = null;
+        foundOrder.shippingDetails.shippingStatus = "Success";
+        foundOrder.currentLocation = "At client's final destination";
+
+        await foundOrder.save().then(async (updatedOrder) => {
+          if (!updatedOrder) {
+            throw new Error(
+              `Something went wrong while updating order ${messageBody.orderId}`
+            );
+          } else {
+            await ordersHistoryModel
+              .create(mapDeliverySuccess(updatedOrder))
+              .then(() => {
+                console.log(
+                  `Order ${messageBody.orderId} has been updated with currentStatus: At client's final destination`
+                );
+              });
+          }
+        });
       }
-    )
-    .then(async (updatedOrder) => {
-      const cancelOrderUpdate = mapDeliverySuccess(updatedOrder);
-      await ordersHistoryModel.create(cancelOrderUpdate);
     });
+  } catch (error) {
+    console.log(error.message);
+  }
 };
 
 export default handleOrderUpdate;

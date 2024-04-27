@@ -10,6 +10,7 @@ import {
   getAvailableTransports,
   updateTransport,
   deleteTransport,
+  assignDelivery,
 } from "../controllers/TransportsController.js";
 import {
   addClient,
@@ -41,6 +42,7 @@ router.route("/get-transports").post(getTransports);
 router.route("/get-available-transports").post(getAvailableTransports);
 router.route("/update-transport/:id").patch(updateTransport);
 router.route("/delete-transport/:id").delete(deleteTransport);
+router.route("/assign-delivery/:id").patch(assignDelivery);
 
 //Clients
 router.route("/add-client").post(newClientHandler, addClient);

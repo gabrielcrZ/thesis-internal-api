@@ -1,5 +1,5 @@
 import { mapAddNewTransport } from "../helpers/PayloadMapper.js";
-import { transportModel } from "../models/Models.js";
+import { transportModel, deliveryModel } from "../models/Models.js";
 
 export const addTransport = async (req, res) => {
   try {
@@ -11,7 +11,7 @@ export const addTransport = async (req, res) => {
         });
       } else {
         res.status(200).json({
-          msg: `Transport ${addedOrder._id} has been created!`,
+          msg: `Transport ${addedTransport._id} has been added!`,
         });
       }
     });
@@ -98,6 +98,49 @@ export const deleteTransport = async (req, res) => {
           res.status(200).json({
             msg: `Transport ${req.params.id} has been deleted`,
           });
+        }
+      });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const assignDelivery = async (req, res) => {
+  try {
+    await transportModel
+      .updateOne(
+        { _id: req.params.id },
+        {
+          currentStatus: `Assigned for ${req.body.deliveryType}`,
+          assignedShipment: req.body.deliveryId,
+        }
+      )
+      .then((updatedTransport) => {
+        if (!updatedTransport) {
+          res.status(400).json({
+            msg: "Transport could not be updated or is invalid",
+          });
+        } else {
+          deliveryModel
+            .updateOne(
+              { _id: req.body.deliveryId },
+              {
+                currentStatus: "Assigned to transport",
+              }
+            )
+            .then(async (updatedDelivery) => {
+              if (!updatedDelivery) {
+                res.status(400).json({
+                  msg: "Delivery could not be updated or is invalid",
+                });
+              } else {
+                res.status(200).json({
+                  msg: `Transport has been assigned to delivery ${req.body.deliveryId}`,
+                });
+              }
+            });
         }
       });
   } catch (error) {

@@ -26,6 +26,7 @@ import {
   updateDelivery,
   deleteDelivery,
 } from "../controllers/DeliveriesController.js";
+import { getDashboardMetrics } from "../controllers/DashboardController.js";
 import { newClientHandler } from "../helpers/Handlers.js";
 
 const router = Router();
@@ -57,7 +58,8 @@ router.route("/get-deliveries").post(getDeliveries);
 router.route("/get-delivery/:id").get(getDelivery);
 router.route("/update-delivery/:id").patch(updateDelivery);
 router.route("/delete-delivery/:id").delete(deleteDelivery);
+
 //Dashboard
-// router.route("/get-dashboard-metrics").get(getDashboardMetrics);
+router.route("/get-dashboard-metrics").get(getDashboardMetrics);
 
 export default router;

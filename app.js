@@ -3,10 +3,12 @@ import router from "./routes/Routes.js";
 import connectDB from "./middlewares/Connect.js";
 import "dotenv/config";
 import rabbitConnect from "./async/AsyncConsume.js";
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
 app.use("/api", router);
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.status(200);

@@ -72,30 +72,22 @@ export const getDashboardMetrics = async (req, res) => {
       .find()
       .where("createdAt")
       .gte(`${new Date().getFullYear()}-01-01`)
-      .lte(`${new Date().getFullYear()}-04-26`)
-      .then((foundOrders) => {
-        return foundOrders.length;
-      });
+      .lte(`${new Date().getFullYear()}-12-31`)
+      .countDocuments();
     cardsInfo.unprocessedOrders.thisYear = await orderModel
       .find()
       .where("createdAt")
       .gte(`${new Date().getFullYear()}-01-01`)
       .lte(`${new Date().getFullYear()}-12-31`)
-      .then((foundOrders) => {
-        return foundOrders.filter(
-          (x) => x.currentStatus === "Registered by client"
-        ).length;
-      });
+      .where("currentStatus", "Registered by client")
+      .countDocuments();
     cardsInfo.unprocessedOrders.lastYear = await orderModel
       .find()
       .where("createdAt")
       .gte(`${new Date().getFullYear() - 1}-01-01`)
       .lte(`${new Date().getFullYear() - 1}-12-31`)
-      .then((foundOrders) => {
-        return foundOrders.filter(
-          (x) => x.currentStatus === "Registered by client"
-        ).length;
-      });
+      .where("currentStatus", "Registered by client")
+      .countDocuments();
     await deliveryModel
       .find()
       .where("createdAt")
@@ -152,108 +144,84 @@ export const getDashboardMetrics = async (req, res) => {
       .where("createdAt")
       .gte(`${new Date().getFullYear()}-01-01`)
       .lte(`${new Date().getFullYear()}-03-31`)
-      .then((foundUpdates) => {
-        return foundUpdates.length;
-      });
+      .countDocuments();
     stackedBarChartInfo.pickedUp.Q2 = await ordersHistoryModel
       .find()
       .where("operationType", "Pickup success")
       .where("createdAt")
       .gte(`${new Date().getFullYear()}-04-01`)
       .lte(`${new Date().getFullYear()}-06-30`)
-      .then((foundUpdates) => {
-        return foundUpdates.length;
-      });
+      .countDocuments();
     stackedBarChartInfo.pickedUp.Q3 = await ordersHistoryModel
       .find()
       .where("operationType", "Pickup success")
       .where("createdAt")
       .gte(`${new Date().getFullYear()}-07-01`)
       .lte(`${new Date().getFullYear()}-09-30`)
-      .then((foundUpdates) => {
-        return foundUpdates.length;
-      });
+      .countDocuments();
     stackedBarChartInfo.pickedUp.Q4 = await ordersHistoryModel
       .find()
       .where("operationType", "Pickup success")
       .where("createdAt")
       .gte(`${new Date().getFullYear()}-10-01`)
       .lte(`${new Date().getFullYear()}-12-31`)
-      .then((foundUpdates) => {
-        return foundUpdates.length;
-      });
+      .countDocuments();
     stackedBarChartInfo.shipped.Q1 = await ordersHistoryModel
       .find()
       .where("operationType", "Shipping success")
       .where("createdAt")
       .gte(`${new Date().getFullYear()}-01-01`)
       .lte(`${new Date().getFullYear()}-03-31`)
-      .then((foundUpdates) => {
-        return foundUpdates.length;
-      });
+      .countDocuments();
     stackedBarChartInfo.shipped.Q2 = await ordersHistoryModel
       .find()
       .where("operationType", "Shipping success")
       .where("createdAt")
       .gte(`${new Date().getFullYear()}-04-01`)
       .lte(`${new Date().getFullYear()}-06-30`)
-      .then((foundUpdates) => {
-        return foundUpdates.length;
-      });
+      .countDocuments();
     stackedBarChartInfo.shipped.Q3 = await ordersHistoryModel
       .find()
       .where("operationType", "Shipping success")
       .where("createdAt")
       .gte(`${new Date().getFullYear()}-07-01`)
       .lte(`${new Date().getFullYear()}-09-30`)
-      .then((foundUpdates) => {
-        return foundUpdates.length;
-      });
+      .countDocuments();
     stackedBarChartInfo.shipped.Q4 = await ordersHistoryModel
       .find()
       .where("operationType", "Shipping success")
       .where("createdAt")
       .gte(`${new Date().getFullYear()}-10-01`)
       .lte(`${new Date().getFullYear()}-12-31`)
-      .then((foundUpdates) => {
-        return foundUpdates.length;
-      });
+      .countDocuments();
     stackedBarChartInfo.delivered.Q1 = await ordersHistoryModel
       .find()
       .where("operationType", "Delivery success")
       .where("createdAt")
       .gte(`${new Date().getFullYear()}-01-01`)
       .lte(`${new Date().getFullYear()}-03-31`)
-      .then((foundUpdates) => {
-        return foundUpdates.length;
-      });
+      .countDocuments();
     stackedBarChartInfo.delivered.Q2 = await ordersHistoryModel
       .find()
       .where("operationType", "Delivery success")
       .where("createdAt")
       .gte(`${new Date().getFullYear()}-04-01`)
       .lte(`${new Date().getFullYear()}-06-30`)
-      .then((foundUpdates) => {
-        return foundUpdates.length;
-      });
+      .countDocuments();
     stackedBarChartInfo.delivered.Q3 = await ordersHistoryModel
       .find()
       .where("operationType", "Delivery success")
       .where("createdAt")
       .gte(`${new Date().getFullYear()}-07-01`)
       .lte(`${new Date().getFullYear()}-09-30`)
-      .then((foundUpdates) => {
-        return foundUpdates.length;
-      });
+      .countDocuments();
     stackedBarChartInfo.delivered.Q4 = await ordersHistoryModel
       .find()
       .where("operationType", "Delivery success")
       .where("createdAt")
       .gte(`${new Date().getFullYear()}-10-01`)
       .lte(`${new Date().getFullYear()}-12-31`)
-      .then((foundUpdates) => {
-        return foundUpdates.length;
-      });
+      .countDocuments();
     //Stacked bar chart end
 
     //Bar chart

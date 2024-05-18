@@ -62,3 +62,45 @@ export const updateOrder = async (req, res) => {
     });
   }
 };
+
+export const getDashboardTableContents = async (req, res) => {
+  try {
+    const page = req.body.pageNumber;
+    const offset = (page - 1) * 5;
+    await orderModel
+      .find()
+      .sort("createdAt")
+      .skip(offset)
+      .limit(5)
+      .then((clientOrders) => {
+        res.status(200).json({
+          orders: clientOrders,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const getOrdersTableContents = async (req, res) => {
+  try {
+    const page = req.body.pageNumber;
+    const offset = (page - 1) * 15;
+    await orderModel
+      .find()
+      .sort("createdAt")
+      .skip(offset)
+      .limit(15)
+      .then((clientOrders) => {
+        res.status(200).json({
+          orders: clientOrders,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};

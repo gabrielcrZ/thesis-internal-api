@@ -3,6 +3,8 @@ import {
   getOrders,
   getOrder,
   updateOrder,
+  getDashboardTableContents,
+  getOrdersTableContents,
 } from "../controllers/OrdersController.js";
 import {
   addTransport,
@@ -34,6 +36,8 @@ const router = Router();
 router.route("/get-orders").get(getOrders);
 router.route("/get-order/:id").get(getOrder);
 router.route("/update-order").patch(updateOrder);
+router.route("/get-dashboard-table-contents").post(getDashboardTableContents);
+router.route("/get-orders-table-contents").post(getOrdersTableContents);
 //Async updates are being handled in AsyncHandler.js
 //Async order cancel is handled in AsyncHandler.js
 

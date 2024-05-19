@@ -1,10 +1,14 @@
-import { orderModel, ordersHistoryModel } from "../models/Models.js";
+import {
+  // clientModel,
+  orderModel,
+  ordersHistoryModel,
+} from "../models/Models.js";
 
 export const getOrders = async (req, res) => {
   try {
     const filters = req.body.filters;
     await orderModel
-      .find({ filters })
+      .find(filters)
       .sort("createdAt")
       .then((clientOrders) => {
         res.status(200).json({
@@ -88,16 +92,93 @@ export const getOrdersTableContents = async (req, res) => {
   try {
     const page = req.body.pageNumber;
     const offset = (page - 1) * 15;
-    await orderModel
-      .find()
-      .sort("createdAt")
-      .skip(offset)
-      .limit(15)
-      .then((clientOrders) => {
-        res.status(200).json({
-          orders: clientOrders,
+    let orderFilter = {};
+    let isClientFiltering = false;
+
+    if (req.body.filters.orderId)
+      orderFilter = { _id: req.body.filters.orderId };
+
+    if (req.body.filters.clientName) isClientFiltering = true;
+    // var mappedOrders = []
+    // if (req.body.filters.clientName) {
+    //   var foundClientId = await clientModel
+    //     .findOne({
+    //       clientName: req.body.filters.clientName,
+    //     })
+    //     .then((foundClient) => foundClient.id);
+
+    //   if (req.body.filters.orderId) {
+    //     filters = {
+    //       clientId: foundClientId,
+    //       _id: req.body.filters._id,
+    //     };
+    //   } else {
+    //     filters = {
+    //       clientId: foundClientId,
+    //     };
+    //   }
+    // }
+    if (isClientFiltering) {
+      await orderModel
+        .find(orderFilter)
+        .where(
+          `${isClientFiltering ? "pickupDetails.pickupClient.clientName" : ""}`,
+          req.body.filters.clientName || ""
+        )
+        .where("createdAt")
+        .gte(
+          req.body.timeFilter?.startDate || `${new Date().getFullYear()}-01-01`
+        )
+        .lte(
+          req.body.timeFilter?.endDate || `${new Date().getFullYear()}-12-31`
+        )
+        .sort("createdAt")
+        .skip(offset)
+        .limit(15)
+        .then((clientOrders) => {
+          res.status(200).json({
+            orders: clientOrders,
+          });
         });
-      });
+    } else {
+      await orderModel
+        .find(orderFilter)
+        .where("createdAt")
+        .gte(
+          req.body.timeFilter?.startDate || `${new Date().getFullYear()}-01-01`
+        )
+        .lte(
+          req.body.timeFilter?.endDate || `${new Date().getFullYear()}-12-31`
+        )
+        .sort("createdAt")
+        .skip(offset)
+        .limit(15)
+        .then((clientOrders) => {
+          // clientOrders.forEach(async (order) => {
+          //   console.log(order);
+          //   if (req.body.filters.clientName) {
+          //     const clientNameFilter = req.body.filters.clientName;
+          //     mappedOrders = [
+          //       ...mappedOrders,
+          //       { clientName: clientNameFilter, ...order._doc },
+          //     ];
+          //   } else {
+          //     const foundClientName = await clientModel
+          //       .findOne({
+          //         _id: order.clientId,
+          //       })
+          //       .then((foundClient) => foundClient.clientName);
+          //     mappedOrders = [
+          //       ...mappedOrders,
+          //       { clientName: foundClientName, ...order._doc },
+          //     ];
+          //   }
+          // });
+          res.status(200).json({
+            orders: clientOrders,
+          });
+        });
+    }
   } catch (error) {
     res.status(500).json({
       msg: error.message,

@@ -33,7 +33,7 @@ import { newClientHandler } from "../helpers/Handlers.js";
 
 const router = Router();
 //Orders
-router.route("/get-orders").get(getOrders);
+router.route("/get-orders").post(getOrders);
 router.route("/get-order/:id").get(getOrder);
 router.route("/update-order").patch(updateOrder);
 router.route("/get-dashboard-table-contents").post(getDashboardTableContents);

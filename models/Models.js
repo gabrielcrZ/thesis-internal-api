@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 
 const clientModel = mongoose.model(
   "Client",
@@ -229,10 +229,62 @@ const deliveryModel = mongoose.model(
     { timestamps: true }
   )
 );
+
+const messagesModel = mongoose.model(
+  "Message",
+  new mongoose.Schema(
+    {
+      from: {
+        type: String,
+        required: [true, "No email provided!"],
+        match: [
+          /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+          "Email address is invalid!",
+        ],
+      },
+      shortMessage: {
+        type: String,
+        required: [true, "No short message was provided!"],
+      },
+      longMessage: {
+        type: String,
+        required: [true, "No long message was provided!"],
+      },
+      referenceId: {
+        type: String,
+        required: [true, "No reference was provided!"],
+      },
+    },
+    { timestamps: true }
+  )
+);
+
+const usersModel = mongoose.model(
+  "User",
+  new mongoose.Schema({
+    email: {
+      type: String,
+      required: [true, "No email provided!"],
+      match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g, "Email address is invalid!"],
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: [true, "Password is required for creating an user!"],
+    },
+    role: {
+      type: String,
+      required: [true, "No role specified for the user!"],
+    },
+  })
+);
+
 export {
   clientModel,
   orderModel,
   ordersHistoryModel,
   transportModel,
   deliveryModel,
+  messagesModel,
+  usersModel,
 };

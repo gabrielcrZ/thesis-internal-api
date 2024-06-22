@@ -1,4 +1,8 @@
-import { ordersHistoryModel, orderModel } from "../models/Models.js";
+import {
+  ordersHistoryModel,
+  orderModel,
+  messagesModel,
+} from "../models/Models.js";
 import {
   mapCancelUpdate,
   mapAssignPickup,
@@ -8,6 +12,9 @@ import {
   mapShipmentSuccess,
   mapAssignDelivery,
   mapDeliverySuccess,
+  mapCancelOrderMessage,
+  mapAssignPickupMessage,
+  mapPickupSuccessMessage,
 } from "../helpers/PayloadMapper.js";
 
 const handleOrderUpdate = async (messageBody) => {
@@ -50,21 +57,35 @@ const handleOrderUpdate = async (messageBody) => {
 
 // TO DO - Add logging for console.log cases
 const handleOrderCancel = async (messageBody) => {
-  await orderModel
-    .findOneAndUpdate(
-      {
-        _id: messageBody.orderId,
-        clientEmail: messageBody.clientEmail,
-      },
-      {
-        currentStatus: "Cancelled",
-        lastUpdatedBy: messageBody.updatedBy,
-      }
-    )
-    .then(async (updatedOrder) => {
-      const cancelOrderUpdate = mapCancelUpdate(updatedOrder);
-      await ordersHistoryModel.create(cancelOrderUpdate);
-    });
+  try {
+    await orderModel
+      .findOneAndUpdate(
+        {
+          _id: messageBody.orderId,
+          clientEmail: messageBody.clientEmail,
+        },
+        {
+          currentStatus: "Cancelled",
+          lastUpdatedBy: messageBody.updatedBy,
+        }
+      )
+      .then(async (updatedOrder) => {
+        if (!updatedOrder)
+          throw new Error(
+            `Order: ${messageBody.orderId} could not be updated!`
+          );
+
+        const cancelOrderUpdate = mapCancelUpdate(updatedOrder);
+        const messageModel = mapCancelOrderMessage(
+          messageBody.clientEmail,
+          messageBody.orderId
+        );
+        await ordersHistoryModel.create(cancelOrderUpdate);
+        await messagesModel.create(messageModel);
+      });
+  } catch (error) {
+    console.log(error.message);
+  }
 };
 
 const handleAssignPickup = async (messageBody) => {
@@ -72,28 +93,34 @@ const handleAssignPickup = async (messageBody) => {
     await orderModel.findById(messageBody.orderId).then(async (foundOrder) => {
       if (!foundOrder) {
         throw new Error(`No order with id ${messageBody.orderId} was found`);
-      } else {
-        foundOrder.currentStatus = "In pickup process";
-        foundOrder.lastUpdatedBy = messageBody.updatedBy;
-        foundOrder.pickupDetails.pickupId = messageBody.pickupId;
-        foundOrder.pickupDetails.pickupStatus = "Assigned for pickup";
-
-        await foundOrder.save().then(async (updatedOrder) => {
-          if (!updatedOrder) {
-            throw new Error(
-              `Something went wrong while updating order ${messageBody.orderId}`
-            );
-          } else {
-            await ordersHistoryModel
-              .create(mapAssignPickup(updatedOrder))
-              .then(() => {
-                console.log(
-                  `Order ${messageBody.orderId} has been assigned for pickup`
-                );
-              });
-          }
-        });
       }
+      foundOrder.currentStatus = "In pickup process";
+      foundOrder.lastUpdatedBy = messageBody.updatedBy;
+      foundOrder.pickupDetails.pickupId = messageBody.pickupId;
+      foundOrder.pickupDetails.pickupStatus = "Assigned for pickup";
+
+      await foundOrder.save().then(async (updatedOrder) => {
+        if (!updatedOrder) {
+          throw new Error(
+            `Something went wrong while updating order ${messageBody.orderId}`
+          );
+        }
+
+        const messageModel = mapAssignPickupMessage(
+          messageBody.updatedBy,
+          messageBody.orderId,
+          messageBody.pickupId,
+          updatedOrder.pickupDetails.pickupCity
+        );
+        await messagesModel.create(messageBody);
+        await ordersHistoryModel
+          .create(mapAssignPickup(updatedOrder))
+          .then(() => {
+            console.log(
+              `Order ${messageBody.orderId} has been assigned for pickup`
+            );
+          });
+      });
     });
   } catch (error) {
     console.log(error.message);
@@ -105,29 +132,34 @@ const handlePickupSuccess = async (messageBody) => {
     await orderModel.findById(messageBody.orderId).then(async (foundOrder) => {
       if (!foundOrder) {
         throw new Error(`No order with id ${messageBody.orderId} was found`);
-      } else {
-        foundOrder.currentStatus = "Picked up from client";
-        foundOrder.lastUpdatedBy = messageBody.updatedBy;
-        foundOrder.pickupDetails.pickupId = null;
-        foundOrder.pickupDetails.pickupStatus = "Success";
-        foundOrder.currentLocation = "In our local storage facility";
-
-        await foundOrder.save().then(async (updatedOrder) => {
-          if (!updatedOrder) {
-            throw new Error(
-              `Something went wrong while updating order ${messageBody.orderId}`
-            );
-          } else {
-            await ordersHistoryModel
-              .create(mapPickupSuccess(updatedOrder))
-              .then(() => {
-                console.log(
-                  `Order ${messageBody.orderId} was updated with pickupStatus: success`
-                );
-              });
-          }
-        });
       }
+      foundOrder.currentStatus = "Picked up from client";
+      foundOrder.lastUpdatedBy = messageBody.updatedBy;
+      foundOrder.pickupDetails.pickupId = null;
+      foundOrder.pickupDetails.pickupStatus = "Success";
+      foundOrder.currentLocation = "In our local storage facility";
+
+      await foundOrder.save().then(async (updatedOrder) => {
+        if (!updatedOrder) {
+          throw new Error(
+            `Something went wrong while updating order ${messageBody.orderId}`
+          );
+        }
+
+        const messageModel = mapPickupSuccessMessage(
+          messageBody.updatedBy,
+          messageBody.orderId,
+          updatedOrder.currentLocation
+        );
+        await messagesModel.create(messageModel);
+        await ordersHistoryModel
+          .create(mapPickupSuccess(updatedOrder))
+          .then(() => {
+            console.log(
+              `Order ${messageBody.orderId} was updated with pickupStatus: success`
+            );
+          });
+      });
     });
   } catch (error) {
     console.log(error.message);

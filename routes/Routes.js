@@ -30,6 +30,8 @@ import {
 } from "../controllers/DeliveriesController.js";
 import { getDashboardMetrics } from "../controllers/DashboardController.js";
 import { newClientHandler } from "../helpers/Handlers.js";
+import { addUser, requireToken } from "../controllers/UsersController.js";
+import { newUserHandler, tokenRequestHandler } from "../middlewares/Auth.js";
 
 const router = Router();
 //Orders
@@ -65,5 +67,9 @@ router.route("/delete-delivery/:id").delete(deleteDelivery);
 
 //Dashboard
 router.route("/get-dashboard-metrics").get(getDashboardMetrics);
+
+//Users
+router.route("/add-user").post(newUserHandler, addUser);
+router.route("/require-token").post(tokenRequestHandler, requireToken);
 
 export default router;

@@ -225,6 +225,16 @@ const deliveryModel = mongoose.model(
         type: String,
         required: [true, "Delivery could not be calculated!"],
       },
+      createdBy: {
+        type: String,
+        required: [true, "No creator specified for this delivery!"],
+        match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g, "Created by is invalid!"],
+      },
+      updatedBy: {
+        type: String,
+        required: [true, "No updater specified for this delivery!"],
+        match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g, "Updated by is invalid!"],
+      },
     },
     { timestamps: true }
   )
@@ -253,6 +263,10 @@ const messagesModel = mongoose.model(
       referenceId: {
         type: String,
         required: [true, "No reference was provided!"],
+      },
+      messageStatus: {
+        type: String,
+        required: [true, "Status for this message has not been set!"],
       },
     },
     { timestamps: true }

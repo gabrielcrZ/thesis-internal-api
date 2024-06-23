@@ -1,11 +1,26 @@
-import { clientModel } from "../models/Models.js";
+import {
+  mapNewClientMessage,
+  mapClientUpdateMessage,
+  mapClientDeleteMessage,
+} from "../helpers/PayloadMapper.js";
+import { clientModel, messagesModel } from "../models/Models.js";
 
 export const addClient = async (req, res) => {
   try {
-    await clientModel.create({ ...req.body }).then((newClient) => {
-      res.status(200).json({
-        msg: `User ${newClient.id} created!`,
-      });
+    await clientModel.create({ ...req.body }).then(async (newClient) => {
+      if (!newClient) throw new Error("Client could not be created!");
+
+      const messageModel = mapNewClientMessage(
+        req.email,
+        newClient._id,
+        req.clientName,
+        reg.clientPhone
+      );
+      await messagesModel.create(messageModel);
+    });
+
+    res.status(200).json({
+      msg: `User ${newClient.id} created!`,
     });
   } catch (error) {
     res.status(500).json({
@@ -57,9 +72,18 @@ export const updateClient = async (req, res) => {
         },
         clientUpdates
       )
-      .then(() => {
+      .then(async (updatedClient) => {
+        if (!updatedClient)
+          throw new Error(`Client: ${req.params.id} could not be updated!`);
+
+        const messageModel = mapClientUpdateMessage(
+          updatedClient.email,
+          updateClient._id
+        );
+        await messagesModel.create(messageModel);
+
         res.status(200).json({
-          msg: `Client ${req.params.id} has been update`,
+          msg: `Client ${req.params.id} has been updated!`,
           updates: clientUpdates,
         });
       });
@@ -76,7 +100,12 @@ export const deleteClient = async (req, res) => {
       .deleteOne({
         _id: req.params.id,
       })
-      .then(() => {
+      .then(async (deletedClient) => {
+        if (!deletedClient)
+          throw new Error(`Client: ${req.params.id} could not be deleted!`);
+
+        const messageModel = mapClientDeleteMessage(deletedClient.email);
+        await messagesModel.create(messageModel);
         res.status(200).json({
           msg: `Client ${req.params.id} has been deleted`,
         });

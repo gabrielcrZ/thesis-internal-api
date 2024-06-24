@@ -7,11 +7,10 @@ export const addUser = async (req, res) => {
         res.status(400).json({
           msg: `Create new user operation failed.`,
         });
-      } else {
-        res.status(200).json({
-          msg: `User ${newUser._id} created successfully!`,
-        });
       }
+      res.status(200).json({
+        msg: `User ${newUser._id} created successfully!`,
+      });
     });
   } catch (error) {
     res.status(500).json({
@@ -25,9 +24,8 @@ export const requireToken = async (req, res) => {
     res.status(400).json({
       body: req.body,
     });
-  } else {
-    res.status(200).json({
-      token: res.token,
-    });
   }
+  res.status(200).json({
+    token: res.token,
+  });
 };

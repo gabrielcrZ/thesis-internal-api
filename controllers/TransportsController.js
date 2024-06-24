@@ -9,11 +9,10 @@ export const addTransport = async (req, res) => {
         res.status(400).json({
           msg: "Transport could not be added",
         });
-      } else {
-        res.status(200).json({
-          msg: `Transport ${addedTransport._id} has been added!`,
-        });
       }
+      res.status(200).json({
+        msg: `Transport ${addedTransport._id} has been added!`,
+      });
     });
   } catch (error) {
     res.status(500).json({
@@ -71,12 +70,11 @@ export const updateTransport = async (req, res) => {
           res.status(400).json({
             msg: `Transport ${req.params.id} could not be updated or is invalid`,
           });
-        } else {
-          res.status(200).json({
-            msg: `Transport ${req.params.id} has been updated`,
-            updates: transportUpdates,
-          });
         }
+        res.status(200).json({
+          msg: `Transport ${req.params.id} has been updated`,
+          updates: transportUpdates,
+        });
       });
   } catch (error) {
     res.status(500).json({
@@ -94,11 +92,10 @@ export const deleteTransport = async (req, res) => {
           res.status(400).json({
             msg: `Transport ${req.params.id} could not be deleted or is invalid`,
           });
-        } else {
-          res.status(200).json({
-            msg: `Transport ${req.params.id} has been deleted`,
-          });
         }
+        res.status(200).json({
+          msg: `Transport ${req.params.id} has been deleted`,
+        });
       });
   } catch (error) {
     res.status(500).json({
@@ -122,26 +119,24 @@ export const assignDelivery = async (req, res) => {
           res.status(400).json({
             msg: "Transport could not be updated or is invalid",
           });
-        } else {
-          deliveryModel
-            .updateOne(
-              { _id: req.body.deliveryId },
-              {
-                currentStatus: "Assigned to transport",
-              }
-            )
-            .then(async (updatedDelivery) => {
-              if (!updatedDelivery) {
-                res.status(400).json({
-                  msg: "Delivery could not be updated or is invalid",
-                });
-              } else {
-                res.status(200).json({
-                  msg: `Transport has been assigned to delivery ${req.body.deliveryId}`,
-                });
-              }
-            });
         }
+        deliveryModel
+          .updateOne(
+            { _id: req.body.deliveryId },
+            {
+              currentStatus: "Assigned to transport",
+            }
+          )
+          .then(async (updatedDelivery) => {
+            if (!updatedDelivery) {
+              res.status(400).json({
+                msg: "Delivery could not be updated or is invalid",
+              });
+            }
+            res.status(200).json({
+              msg: `Transport has been assigned to delivery ${req.body.deliveryId}`,
+            });
+          });
       });
   } catch (error) {
     res.status(500).json({

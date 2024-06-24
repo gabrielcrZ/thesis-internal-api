@@ -32,6 +32,11 @@ import { getDashboardMetrics } from "../controllers/DashboardController.js";
 import { newClientHandler } from "../helpers/Handlers.js";
 import { addUser, requireToken } from "../controllers/UsersController.js";
 import { newUserHandler, tokenRequestHandler } from "../middlewares/Auth.js";
+import {
+  getMessages,
+  getUncheckedMessages,
+  updateMessageStatus,
+} from "../controllers/MessagesController.js";
 
 const router = Router();
 //Orders
@@ -72,4 +77,8 @@ router.route("/get-dashboard-metrics").get(getDashboardMetrics);
 router.route("/add-user").post(newUserHandler, addUser);
 router.route("/require-token").post(tokenRequestHandler, requireToken);
 
+//Messages
+router.route("/get-unchecked-messages").get(getUncheckedMessages);
+router.route("/get-messages").get(getMessages);
+router.route("/update-message").patch(updateMessageStatus);
 export default router;

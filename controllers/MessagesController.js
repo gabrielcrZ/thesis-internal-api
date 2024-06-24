@@ -1,4 +1,4 @@
-import { messagesModel } from "../models/Models";
+import { messagesModel } from "../models/Models.js";
 
 export const getMessages = async (req, res) => {
   try {
@@ -47,6 +47,24 @@ export const updateMessageStatus = async (req, res) => {
           msg: `Message: ${req.messageId} has been updated to status: Seen`,
         });
       });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const getUncheckedMessages = async (req, res) => {
+  try {
+    let uncheckedMessages;
+
+    await messagesModel
+      .find({ messageStatus: "Unseen" })
+      .then((foundMessages) => (uncheckedMessages = foundMessages.length));
+
+    res.status(200).json({
+      count: uncheckedMessages,
+    });
   } catch (error) {
     res.status(500).json({
       msg: error.message,

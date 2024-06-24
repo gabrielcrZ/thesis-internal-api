@@ -24,17 +24,16 @@ const tokenRequestHandler = async (req, res, next) => {
         res.status(400).json({
           msg: `Provided password is invalid for email: ${email}`,
         });
-      } else {
-        const userId = foundUser._id;
-        const token = jwt.sign(
-          { email, password, userId },
-          process.env.JWT_SECRET,
-          {
-            expiresIn: "1d",
-          }
-        );
-        res.token = token;
       }
+      const userId = foundUser._id;
+      const token = jwt.sign(
+        { email, password, userId },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "1d",
+        }
+      );
+      res.token = token;
     }
   });
   next();

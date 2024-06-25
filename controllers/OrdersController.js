@@ -23,16 +23,23 @@ export const getOrders = async (req, res) => {
   }
 };
 
-export const getOrder = async (req, res) => {
+export const getOrderContent = async (req, res) => {
   try {
     await orderModel
       .findOne({
         _id: req.params.id,
       })
-      .then((foundOrder) => {
-        res.status(200).json({
-          order: foundOrder,
-        });
+      .then(async (foundOrder) => {
+        await ordersHistoryModel
+          .find({ orderId: req.params.id })
+          .sort({ createdAt: -1 })
+          .then((foundHistory) => {
+            // add transports model call to retrieve the available pickups/deliveries/shippings
+            res.status(200).json({
+              order: foundOrder,
+              orderHistory: foundHistory,
+            });
+          });
       });
   } catch (error) {
     res.status(500).json({

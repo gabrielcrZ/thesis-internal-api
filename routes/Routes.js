@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   getOrders,
-  getOrder,
+  getOrderContent,
   updateOrder,
   getDashboardTableContents,
   getOrdersTableContents,
@@ -41,7 +41,7 @@ import {
 const router = Router();
 //Orders
 router.route("/get-orders").post(getOrders);
-router.route("/get-order/:id").get(getOrder);
+router.route("/get-order-content/:id").get(getOrderContent);
 router.route("/update-order").patch(updateOrder);
 router.route("/get-dashboard-table-contents").post(getDashboardTableContents);
 router.route("/get-orders-table-contents").post(getOrdersTableContents);

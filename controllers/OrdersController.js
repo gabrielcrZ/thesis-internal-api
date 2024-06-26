@@ -1,4 +1,5 @@
 import {
+  deliveryModel,
   // clientModel,
   orderModel,
   ordersHistoryModel,
@@ -33,11 +34,52 @@ export const getOrderContent = async (req, res) => {
         await ordersHistoryModel
           .find({ orderId: req.params.id })
           .sort({ createdAt: -1 })
-          .then((foundHistory) => {
-            // add transports model call to retrieve the available pickups/deliveries/shippings
+          .then(async (foundHistory) => {
+            const availablePickups = await deliveryModel
+              .find({
+                deliveryType: "Pickup",
+              })
+              .where(
+                "placeOfDeparture.departureCity",
+                foundOrder.pickupDetails.pickupCity
+              )
+              .where(
+                "placeOfDelivery.deliveryCity",
+                foundOrder.pickupDetails.pickupCity
+              )
+              .select("_id");
+            const availableShippings = await deliveryModel
+              .find({
+                deliveryType: "Shipping",
+              })
+              .where(
+                "placeOfDeparture.departureCity",
+                foundOrder.pickupDetails.pickupCity
+              )
+              .where(
+                "placeOfDelivery.deliveryCity",
+                foundOrder.shippingDetails.shippingCity
+              )
+              .select("_id");
+            const availableDeliveries = await deliveryModel
+              .find({
+                deliveryType: "Delivery",
+              })
+              .where(
+                "placeOfDeparture.departureCity",
+                foundOrder.shippingDetails.shippingCity
+              )
+              .where(
+                "placeOfDelivery.deliveryCity",
+                foundOrder.shippingDetails.shippingCity
+              )
+              .select("_id");
             res.status(200).json({
               order: foundOrder,
               orderHistory: foundHistory,
+              availablePickups: availablePickups,
+              availableShippings: availableShippings,
+              availableDeliveries: availableDeliveries,
             });
           });
       });

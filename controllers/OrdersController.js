@@ -1,5 +1,11 @@
 import {
+  mapUnassignPickup,
+  mapUnassignPickupMessage,
+} from "../helpers/PayloadMapper.js";
+import { decodeAuthorizationToken } from "../middlewares/Auth.js";
+import {
   deliveryModel,
+  messagesModel,
   // clientModel,
   orderModel,
   ordersHistoryModel,
@@ -225,6 +231,50 @@ export const getOrdersTableContents = async (req, res) => {
           orders: clientOrders,
         });
       });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const unassignOrderPickup = async (req, res) => {
+  try {
+    await orderModel.findById(req.body.order).then(async (foundOrder) => {
+      if (!foundOrder) {
+        throw new Error(`No order with id ${req.body.orderId} was found`);
+      }
+
+      const { email, userId } = decodeAuthorizationToken(
+        req.headers.authorization
+      );
+      const oldPickupId = foundOrder.pickupDetails.pickupId;
+
+      foundOrder.currentStatus = "Registered by client";
+      foundOrder.lastUpdatedBy = email;
+      foundOrder.pickupDetails.pickupId = null;
+      foundOrder.pickupDetails.pickupStatus = "Not assigned";
+
+      await foundOrder.save().then(async (updatedOrder) => {
+        if (!updatedOrder) {
+          throw new Error(`Order ${foundOrder._id} could not be updated!`);
+        }
+        const messageModel = mapUnassignPickupMessage(
+          email,
+          updatedOrder._id,
+          oldPickupId
+        );
+
+        const orderHistoryUpdate = mapUnassignPickup(updatedOrder._id, email);
+
+        await messagesModel.create(messageModel);
+        await ordersHistoryModel.create(orderHistoryUpdate);
+
+        res.status(200).json({
+          msg: `Order ${updatedOrder._id} has been unassigned from pickup!`,
+        });
+      });
+    });
   } catch (error) {
     res.status(500).json({
       msg: error.message,

@@ -117,7 +117,7 @@ const handleAssignPickup = async (messageBody) => {
           messageBody.pickupId,
           updatedOrder.pickupDetails.pickupCity
         );
-        await messagesModel.create(messageBody);
+        await messagesModel.create(messageModel);
         await ordersHistoryModel
           .create(mapAssignPickup(updatedOrder))
           .then(() => {

@@ -97,7 +97,6 @@ const orderModel = mongoose.model(
       },
       assignedTransport: {
         type: String,
-        required: [true, "Transport has not been provided for this order!"],
       },
       lastUpdatedBy: {
         type: String,

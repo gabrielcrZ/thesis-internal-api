@@ -5,6 +5,7 @@ import {
   updateOrder,
   getDashboardTableContents,
   getOrdersTableContents,
+  unassignOrderPickup,
 } from "../controllers/OrdersController.js";
 import {
   addTransport,
@@ -45,6 +46,7 @@ router.route("/get-order-content/:id").get(getOrderContent);
 router.route("/update-order").patch(updateOrder);
 router.route("/get-dashboard-table-contents").post(getDashboardTableContents);
 router.route("/get-orders-table-contents").post(getOrdersTableContents);
+router.route("/unassign-pickup").post(unassignOrderPickup);
 //Async updates are being handled in AsyncHandler.js
 //Async order cancel is handled in AsyncHandler.js
 

@@ -220,7 +220,7 @@ export const mapNewDeliveryMessage = (
 ) => {
   return {
     from: createdBy,
-    shortMessage: "A new delivery has been created!d",
+    shortMessage: "A new delivery has been created!",
     longMessage: `Delivery: ${deliveryId} has been created. Pickup location: ${pickupLocation}, delivery to: ${deliveryLocation} with estimated cost: ${estimatedCost}`,
     referenceId: deliveryId,
     messageStatus: "Unseen",
@@ -234,9 +234,28 @@ export const mapDeliveryUpdateMessage = (
 ) => {
   return {
     from: updatedBy,
-    shortMessage: "A delivery has been updated",
+    shortMessage: "A delivery has been updated!",
     longMessage: `Delivery: ${deliveryId} has been updated by: ${updatedBy} at: ${updatedTime}`,
     referenceId: deliveryId,
     messageStatus: "Unseen",
+  };
+};
+
+export const mapUnassignPickupMessage = (updatedBy, orderId, pickupId) => {
+  return {
+    from: updatedBy,
+    shortMessage: "An order has been unassign from pickup process!",
+    longMessage: `Order ${orderId} it's no longer assigned to pickup ${pickupId}. Unassigned by ${updatedBy}.`,
+    referenceId: orderId,
+    messageStatus: "Unseen",
+  };
+};
+
+export const mapUnassignPickup = (orderId, updatedBy) => {
+  return {
+    operationType: "Unassign pickup",
+    orderId: orderId,
+    updatedBy: updatedBy,
+    additionalInfo: "Order has been unassign from pickup process!",
   };
 };

@@ -88,6 +88,15 @@ export const mapCancelOrderMessage = (providedEmail, orderId) => {
   };
 };
 
+export const mapForceCancelOrderMessage = (updatedBy, orderId) => {
+  return {
+    from: updatedBy,
+    shortMessage: "An order has been cancelled!",
+    longMessage: `Order ${orderId} has been cancelled through the ShippingApp Dashboard`,
+    referenceId: orderId,
+    messageStatus: "Unseen",
+  };
+};
 export const mapAssignPickupMessage = (
   assignedBy,
   orderId,
@@ -295,5 +304,15 @@ export const mapUnassignDelivery = (orderId, updatedBy) => {
     orderId: orderId,
     updatedBy: updatedBy,
     additionalInfo: "Order has been unassigned from delivery process!",
+  };
+};
+
+export const mapUpdateOrderMessage = (updatedBy, orderId) => {
+  return {
+    from: updatedBy,
+    shortMessage: "An order has been force-updated!",
+    longMessage: `Order ${orderId} has been updated through the ShippingApp Dashboard. Updated by ${updatedBy}`,
+    referenceId: orderId,
+    messageStatus: "Unseen",
   };
 };

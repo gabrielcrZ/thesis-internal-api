@@ -63,31 +63,28 @@ const handleOrderUpdate = async (messageBody) => {
 // TO DO - Add logging for console.log cases
 const handleOrderCancel = async (messageBody) => {
   try {
-    await orderModel
-      .findOneAndUpdate(
-        {
-          _id: messageBody.orderId,
-          clientEmail: messageBody.clientEmail,
-        },
-        {
-          currentStatus: "Cancelled",
-          lastUpdatedBy: messageBody.updatedBy,
-        }
-      )
-      .then(async (updatedOrder) => {
+    await orderModel.findById(messageBody.orderId).then(async (foundOrder) => {
+      if (!foundOrder)
+        throw new Error(`No order with id ${messageBody.orderId} was found`);
+
+      foundOrder.currentStatus = "Cancelled";
+      foundOrder.lastUpdatedBy = messageBody.updatedBy;
+
+      await foundOrder.save().then(async (updatedOrder) => {
         if (!updatedOrder)
-          throw new Error(
-            `Order: ${messageBody.orderId} could not be updated!`
-          );
+          throw new Error(`Order ${messageBody.orderId} could not be updated!`);
 
         const cancelOrderUpdate = mapCancelUpdate(updatedOrder);
         const messageModel = mapCancelOrderMessage(
-          messageBody.clientEmail,
+          messageBody.updatedBy,
           messageBody.orderId
         );
         await ordersHistoryModel.create(cancelOrderUpdate);
-        await messagesModel.create(messageModel);
+        await messagesModel.create(messageModel).then(() => {
+          console.log(`Order ${messageBody.orderId} has been cancelled`);
+        });
       });
+    });
   } catch (error) {
     console.log(error.message);
   }

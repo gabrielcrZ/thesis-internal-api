@@ -11,6 +11,7 @@ import {
   unassignOrderShipping,
   assignOrderDelivery,
   unassignOrderDelivery,
+  cancelOrder,
 } from "../controllers/OrdersController.js";
 import {
   addTransport,
@@ -48,7 +49,7 @@ const router = Router();
 //Orders
 router.route("/get-orders").post(getOrders);
 router.route("/get-order-content/:id").get(getOrderContent);
-router.route("/update-order").patch(updateOrder);
+router.route("/update-order/:id").patch(updateOrder);
 router.route("/get-dashboard-table-contents").post(getDashboardTableContents);
 router.route("/get-orders-table-contents").post(getOrdersTableContents);
 router.route("/unassign-pickup").post(unassignOrderPickup);
@@ -57,6 +58,7 @@ router.route("/assign-shipping").post(assignOrderShipment);
 router.route("/unassign-shipment").post(unassignOrderShipping);
 router.route("/assign-delivery").post(assignOrderDelivery);
 router.route("/unassign-delivery").post(unassignOrderDelivery);
+router.route("/cancel-order").post(cancelOrder);
 //Async updates are being handled in AsyncHandler.js
 //Async order cancel is handled in AsyncHandler.js
 

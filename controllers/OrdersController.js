@@ -5,12 +5,15 @@ import {
   mapAssignPickupMessage,
   mapAssignShipment,
   mapAssignShippingMessage,
+  mapCancelUpdate,
+  mapForceCancelOrderMessage,
   mapUnassignDelivery,
   mapUnassignDeliveryMessage,
   mapUnassignPickup,
   mapUnassignPickupMessage,
   mapUnassignShipping,
   mapUnassignShippingMessage,
+  mapUpdateOrderMessage,
 } from "../helpers/PayloadMapper.js";
 import { decodeAuthorizationToken } from "../middlewares/Auth.js";
 import {
@@ -108,22 +111,32 @@ export const getOrderContent = async (req, res) => {
 
 export const updateOrder = async (req, res) => {
   try {
+    const { email, userId } = decodeAuthorizationToken(
+      req.headers.authorization
+    );
+
     await orderModel
       .findOneAndUpdate({ _id: req.params.id }, req.body)
       .then(async (updatedOrder) => {
-        await ordersHistoryModel
-          .create({
-            operationType: "Force updated",
-            orderId: updatedOrder._id,
-            updatedBy: "Administrator",
-            additionalInfo: req.body.updateReason,
-          })
-          .then(() => {
-            res.status(200).json({
-              msg: `Order ${updatedOrder._id} has been updated`,
-              updates: req.body,
-            });
-          });
+        if (!updatedOrder) {
+          throw new Error(`Order ${req.params.id} could not be updated!`);
+        }
+
+        const orderHistoryUpdate = {
+          operationType: "Force updated",
+          orderId: updatedOrder._id,
+          updatedBy: email,
+          additionalInfo:
+            "Order has been updated through the ShippingApp Dashboard",
+        };
+        const messageModel = mapUpdateOrderMessage(email, updatedOrder._id);
+        await ordersHistoryModel.create(orderHistoryUpdate);
+        await messagesModel.create(messageModel);
+
+        res.status(200).json({
+          msg: `Order ${updatedOrder._id} has been updated`,
+          updates: req.body,
+        });
       });
   } catch (error) {
     res.status(500).json({
@@ -500,6 +513,46 @@ export const unassignOrderDelivery = async (req, res) => {
 
         res.status(200).json({
           msg: `Order ${updatedOrder._id} has been unassigned from delivery process!`,
+        });
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const cancelOrder = async (req, res) => {
+  try {
+    await orderModel.findById(req.body.orderId).then(async (foundOrder) => {
+      if (!foundOrder) {
+        throw new Error(`No order with id ${req.body.orderId} was found`);
+      }
+
+      const { email, userId } = decodeAuthorizationToken(
+        req.headers.authorization
+      );
+
+      foundOrder.currentStatus = "Cancelled";
+      foundOrder.lastUpdatedBy = email;
+
+      await foundOrder.save().then(async (updatedOrder) => {
+        if (!updatedOrder) {
+          throw new Error(`Order ${foundOrder._id} could not be updated!`);
+        }
+
+        const messageModel = mapForceCancelOrderMessage(
+          email,
+          updatedOrder._id
+        );
+        const orderHistoryUpdate = mapCancelUpdate(updatedOrder);
+
+        await messagesModel.create(messageModel);
+        await ordersHistoryModel.create(orderHistoryUpdate);
+
+        res.status(200).json({
+          msg: `Order ${updatedOrder._id} has been successfully cancelled!`,
         });
       });
     });

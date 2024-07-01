@@ -6,6 +6,11 @@ import {
   getDashboardTableContents,
   getOrdersTableContents,
   unassignOrderPickup,
+  assignOrderPickup,
+  assignOrderShipment,
+  unassignOrderShipping,
+  assignOrderDelivery,
+  unassignOrderDelivery,
 } from "../controllers/OrdersController.js";
 import {
   addTransport,
@@ -47,6 +52,11 @@ router.route("/update-order").patch(updateOrder);
 router.route("/get-dashboard-table-contents").post(getDashboardTableContents);
 router.route("/get-orders-table-contents").post(getOrdersTableContents);
 router.route("/unassign-pickup").post(unassignOrderPickup);
+router.route("/assign-pickup").post(assignOrderPickup);
+router.route("/assign-shipping").post(assignOrderShipment);
+router.route("/unassign-shipment").post(unassignOrderShipping);
+router.route("/assign-delivery").post(assignOrderDelivery);
+router.route("/unassign-delivery").post(unassignOrderDelivery);
 //Async updates are being handled in AsyncHandler.js
 //Async order cancel is handled in AsyncHandler.js
 

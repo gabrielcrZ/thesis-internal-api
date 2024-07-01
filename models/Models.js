@@ -198,6 +198,7 @@ const deliveryModel = mongoose.model(
       placeOfDeparture: {
         type: {
           departureRegion: String,
+          departureCountry: String,
           departureCity: String,
           departureAddress: String,
         },
@@ -210,6 +211,7 @@ const deliveryModel = mongoose.model(
       placeOfDelivery: {
         type: {
           deliveryRegion: String,
+          deliveryCountry: String,
           deliveryCity: String,
           deliveryAddress: String,
         },

@@ -1,6 +1,16 @@
 import {
+  mapAssignDelivery,
+  mapAssignDeliveryMessage,
+  mapAssignPickup,
+  mapAssignPickupMessage,
+  mapAssignShipment,
+  mapAssignShippingMessage,
+  mapUnassignDelivery,
+  mapUnassignDeliveryMessage,
   mapUnassignPickup,
   mapUnassignPickupMessage,
+  mapUnassignShipping,
+  mapUnassignShippingMessage,
 } from "../helpers/PayloadMapper.js";
 import { decodeAuthorizationToken } from "../middlewares/Auth.js";
 import {
@@ -46,12 +56,12 @@ export const getOrderContent = async (req, res) => {
                 deliveryType: "Pickup",
               })
               .where(
-                "placeOfDeparture.departureCity",
-                foundOrder.pickupDetails.pickupCity
+                "placeOfDeparture.departureCountry",
+                foundOrder.pickupDetails.pickupCountry
               )
               .where(
-                "placeOfDelivery.deliveryCity",
-                foundOrder.pickupDetails.pickupCity
+                "placeOfDelivery.deliveryCountry",
+                foundOrder.pickupDetails.pickupCountry
               )
               .select("_id");
             const availableShippings = await deliveryModel
@@ -59,12 +69,12 @@ export const getOrderContent = async (req, res) => {
                 deliveryType: "Shipping",
               })
               .where(
-                "placeOfDeparture.departureCity",
-                foundOrder.pickupDetails.pickupCity
+                "placeOfDeparture.departureCountry",
+                foundOrder.pickupDetails.pickupCountry
               )
               .where(
-                "placeOfDelivery.deliveryCity",
-                foundOrder.shippingDetails.shippingCity
+                "placeOfDelivery.deliveryCountry",
+                foundOrder.shippingDetails.shippingCountry
               )
               .select("_id");
             const availableDeliveries = await deliveryModel
@@ -72,12 +82,12 @@ export const getOrderContent = async (req, res) => {
                 deliveryType: "Delivery",
               })
               .where(
-                "placeOfDeparture.departureCity",
-                foundOrder.shippingDetails.shippingCity
+                "placeOfDeparture.departureCountry",
+                foundOrder.shippingDetails.shippingCountry
               )
               .where(
-                "placeOfDelivery.deliveryCity",
-                foundOrder.shippingDetails.shippingCity
+                "placeOfDelivery.deliveryCountry",
+                foundOrder.shippingDetails.shippingCountry
               )
               .select("_id");
             res.status(200).json({
@@ -240,7 +250,7 @@ export const getOrdersTableContents = async (req, res) => {
 
 export const unassignOrderPickup = async (req, res) => {
   try {
-    await orderModel.findById(req.body.order).then(async (foundOrder) => {
+    await orderModel.findById(req.body.orderId).then(async (foundOrder) => {
       if (!foundOrder) {
         throw new Error(`No order with id ${req.body.orderId} was found`);
       }
@@ -272,6 +282,224 @@ export const unassignOrderPickup = async (req, res) => {
 
         res.status(200).json({
           msg: `Order ${updatedOrder._id} has been unassigned from pickup!`,
+        });
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const assignOrderPickup = async (req, res) => {
+  try {
+    await orderModel.findById(req.body.orderId).then(async (foundOrder) => {
+      if (!foundOrder) {
+        throw new Error(`No order with id ${req.body.orderId} was found`);
+      }
+
+      const { email, userId } = decodeAuthorizationToken(
+        req.headers.authorization
+      );
+      foundOrder.currentStatus = "In pickup process";
+      foundOrder.lastUpdatedBy = email;
+      foundOrder.pickupDetails.pickupId = req.body.pickupId;
+      foundOrder.pickupDetails.pickupStatus = "Assigned for pickup";
+
+      await foundOrder.save().then(async (updatedOrder) => {
+        if (!updatedOrder) {
+          throw new Error(`Order ${foundOrder._id} could not be updated!`);
+        }
+        const messageModel = mapAssignPickupMessage(
+          email,
+          updatedOrder._id,
+          updatedOrder.pickupDetails.pickupId,
+          updatedOrder.pickupDetails.pickupCity
+        );
+        const orderHistoryUpdate = mapAssignPickup(updatedOrder);
+
+        await messagesModel.create(messageModel);
+        await ordersHistoryModel.create(orderHistoryUpdate);
+
+        res.status(200).json({
+          msg: `Order ${updatedOrder._id} has been assigned for pickup!`,
+        });
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const assignOrderShipment = async (req, res) => {
+  try {
+    await orderModel.findById(req.body.orderId).then(async (foundOrder) => {
+      if (!foundOrder) {
+        throw new Error(`No order with id ${req.body.orderId} was found`);
+      }
+
+      const { email, userId } = decodeAuthorizationToken(
+        req.headers.authorization
+      );
+      foundOrder.currentStatus = "Assigned to be shipped";
+      foundOrder.lastUpdatedBy = email;
+      foundOrder.shippingDetails.shippingId = req.body.shippingId;
+      foundOrder.shippingDetails.shippingStatus = "Assigned for shipping";
+
+      await foundOrder.save().then(async (updatedOrder) => {
+        if (!updatedOrder) {
+          throw new Error(`Order ${foundOrder._id} could not be updated!`);
+        }
+
+        const messageModel = mapAssignShippingMessage(
+          email,
+          updatedOrder._id,
+          updatedOrder.shippingDetails.shippingId
+        );
+        const orderHistoryUpdate = mapAssignShipment(updatedOrder);
+
+        await messagesModel.create(messageModel);
+        await ordersHistoryModel.create(orderHistoryUpdate);
+
+        res.status(200).json({
+          msg: `Order ${updatedOrder._id} has been assigned for shipping!`,
+        });
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const unassignOrderShipping = async (req, res) => {
+  try {
+    await orderModel.findById(req.body.orderId).then(async (foundOrder) => {
+      if (!foundOrder) {
+        throw new Error(`No order with id ${req.body.orderId} was found`);
+      }
+
+      const { email, userId } = decodeAuthorizationToken(
+        req.headers.authorization
+      );
+      const oldShippingId = foundOrder.shippingDetails.shippingId;
+
+      foundOrder.currentStatus = "Picked up from client";
+      foundOrder.shippingDetails.shippingId = null;
+      foundOrder.shippingDetails.shippingStatus = "Not assigned";
+      foundOrder.lastUpdatedBy = email;
+      foundOrder.currentLocation = "In our local storage facility";
+
+      await foundOrder.save().then(async (updatedOrder) => {
+        if (!updatedOrder) {
+          throw new Error(`Order ${foundOrder._id} could not be updated!`);
+        }
+        const messageModel = mapUnassignShippingMessage(
+          email,
+          updatedOrder._id,
+          oldShippingId
+        );
+
+        const orderHistoryUpdate = mapUnassignShipping(updatedOrder._id, email);
+
+        await messagesModel.create(messageModel);
+        await ordersHistoryModel.create(orderHistoryUpdate);
+
+        res.status(200).json({
+          msg: `Order ${updatedOrder._id} has been unassigned from shipping!`,
+        });
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const assignOrderDelivery = async (req, res) => {
+  try {
+    await orderModel.findById(req.body.orderId).then(async (foundOrder) => {
+      if (!foundOrder) {
+        throw new Error(`No order with id ${req.body.orderId} was found`);
+      }
+
+      const { email, userId } = decodeAuthorizationToken(
+        req.headers.authorization
+      );
+
+      foundOrder.currentStatus = "In delivery process";
+      foundOrder.lastUpdatedBy = email;
+      foundOrder.shippingDetails.shippingId = req.body.deliveryId;
+      foundOrder.shippingDetails.shippingStatus = "Assigned for delivery";
+
+      await foundOrder.save().then(async (updatedOrder) => {
+        if (!updatedOrder) {
+          throw new Error(`Order ${foundOrder._id} could not be updated!`);
+        }
+
+        const messageModel = mapAssignDeliveryMessage(
+          email,
+          updatedOrder._id,
+          updatedOrder.shippingDetails.shippingId,
+          updatedOrder.shippingDetails.shippingAddress
+        );
+        const orderHistoryUpdate = mapAssignDelivery(updatedOrder);
+
+        await messagesModel.create(messageModel);
+        await ordersHistoryModel.create(orderHistoryUpdate);
+
+        res.status(200).json({
+          msg: `Order ${updatedOrder._id} has been assigned for delivery!`,
+        });
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const unassignOrderDelivery = async (req, res) => {
+  try {
+    await orderModel.findById(req.body.orderId).then(async (foundOrder) => {
+      if (!foundOrder) {
+        throw new Error(`No order with id ${req.body.orderId} was found`);
+      }
+
+      const { email, userId } = decodeAuthorizationToken(
+        req.headers.authorization
+      );
+      const oldDeliveryId = foundOrder.shippingDetails.shippingId;
+
+      foundOrder.currentStatus = "Successfully shipped";
+      foundOrder.shippingDetails.shippingId = null;
+      foundOrder.shippingDetails.shippingStatus = "Success";
+      foundOrder.lastUpdatedBy = email;
+      foundOrder.currentLocation = "In our destination's storage facility";
+
+      await foundOrder.save().then(async (updatedOrder) => {
+        if (!updatedOrder) {
+          throw new Error(`Order ${foundOrder._id} could not be updated!`);
+        }
+        const messageModel = mapUnassignDeliveryMessage(
+          email,
+          updatedOrder._id,
+          oldDeliveryId
+        );
+
+        const orderHistoryUpdate = mapUnassignDelivery(updatedOrder._id, email);
+
+        await messagesModel.create(messageModel);
+        await ordersHistoryModel.create(orderHistoryUpdate);
+
+        res.status(200).json({
+          msg: `Order ${updatedOrder._id} has been unassigned from delivery process!`,
         });
       });
     });

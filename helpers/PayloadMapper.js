@@ -10,7 +10,7 @@ export const mapCancelUpdate = (updatedOrder) => {
 export const mapAssignPickup = (updatedOrder) => {
   return {
     operationType: "Assign pickup",
-    orderId: updatedOrder.id,
+    orderId: updatedOrder._id,
     updatedBy: updatedOrder.lastUpdatedBy,
     additionalInfo: "Order has been assigned for pickup!",
   };
@@ -19,7 +19,7 @@ export const mapAssignPickup = (updatedOrder) => {
 export const mapPickupSuccess = (updatedOrder) => {
   return {
     operationType: "Pickup success",
-    orderId: updatedOrder.id,
+    orderId: updatedOrder._id,
     updatedBy: updatedOrder.lastUpdatedBy,
     additionalInfo: "Order has been picked up successfully!",
   };
@@ -28,7 +28,7 @@ export const mapPickupSuccess = (updatedOrder) => {
 export const mapPickupFailure = (updatedOrder, failReason) => {
   return {
     operationType: "Pickup fail",
-    orderId: updatedOrder.id,
+    orderId: updatedOrder._id,
     updatedBy: updatedOrder.lastUpdatedBy,
     additionalInfo: failReason,
   };
@@ -37,7 +37,7 @@ export const mapPickupFailure = (updatedOrder, failReason) => {
 export const mapAssignShipment = (updatedOrder) => {
   return {
     operationType: "Assign shipping",
-    orderId: updatedOrder.id,
+    orderId: updatedOrder._id,
     updatedBy: updatedOrder.lastUpdatedBy,
     additionalInfo: "Order has been assigned for shipping!",
   };
@@ -46,7 +46,7 @@ export const mapAssignShipment = (updatedOrder) => {
 export const mapShipmentSuccess = (updatedOrder) => {
   return {
     operationType: "Shipping success",
-    orderId: updatedOrder.id,
+    orderId: updatedOrder._id,
     updatedBy: updatedOrder.lastUpdatedBy,
     additionalInfo: "Order has been shipped successfully",
   };
@@ -55,7 +55,7 @@ export const mapShipmentSuccess = (updatedOrder) => {
 export const mapAssignDelivery = (updatedOrder) => {
   return {
     operationType: "Assign delivery",
-    orderId: updatedOrder.id,
+    orderId: updatedOrder._id,
     updatedBy: updatedOrder.lastUpdatedBy,
     additionalInfo: "Order has been assigned for delivery",
   };
@@ -64,7 +64,7 @@ export const mapAssignDelivery = (updatedOrder) => {
 export const mapDeliverySuccess = (updatedOrder) => {
   return {
     operationType: "Delivery success",
-    orderId: updatedOrder.id,
+    orderId: updatedOrder._id,
     updatedBy: updatedOrder.lastUpdatedBy,
     additionalInfo: "Order has been successfully delivered to client",
   };
@@ -257,5 +257,43 @@ export const mapUnassignPickup = (orderId, updatedBy) => {
     orderId: orderId,
     updatedBy: updatedBy,
     additionalInfo: "Order has been unassign from pickup process!",
+  };
+};
+
+export const mapUnassignShippingMessage = (updatedBy, orderId, shippingId) => {
+  return {
+    from: updatedBy,
+    shortMessage: "An order has been unassigned from shipping process!",
+    longMessage: `Order ${orderId} it's no longer assigned to shipment ${shippingId}. Unassigned by ${updatedBy}.`,
+    referenceId: orderId,
+    messageStatus: "Unseen",
+  };
+};
+
+export const mapUnassignShipping = (orderId, updatedBy) => {
+  return {
+    operationType: "Unassign shipping",
+    orderId: orderId,
+    updatedBy: updatedBy,
+    additionalInfo: "Order has been unassigned from shipping process!",
+  };
+};
+
+export const mapUnassignDeliveryMessage = (updatedBy, orderId, deliveryId) => {
+  return {
+    from: updatedBy,
+    shortMessage: "An order has been unassigned from delivery process!",
+    longMessage: `Order ${orderId} it's no longer assigned to delivery ${deliveryId}. Unassigned by ${updatedBy}.`,
+    referenceId: orderId,
+    messageStatus: "Unseen",
+  };
+};
+
+export const mapUnassignDelivery = (orderId, updatedBy) => {
+  return {
+    operationType: "Unassign delivery",
+    orderId: orderId,
+    updatedBy: updatedBy,
+    additionalInfo: "Order has been unassigned from delivery process!",
   };
 };

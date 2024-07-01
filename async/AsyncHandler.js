@@ -348,7 +348,7 @@ const handleDeliverySuccess = async (messageBody) => {
           messageBody.orderId,
           updatedOrder.shippingDetails.shippingAddress
         );
-        await messageBody.create(messageBody);
+        await messagesModel.create(messageModel);
         await ordersHistoryModel
           .create(mapDeliverySuccess(updatedOrder))
           .then(() => {

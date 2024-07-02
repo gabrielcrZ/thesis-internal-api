@@ -7,6 +7,7 @@ import { calculateShippingCost } from "../helpers/ShippingCostCalculation.js";
 import {
   mapNewDeliveryMessage,
   mapDeliveryUpdateMessage,
+  mapCancelDeliveryMessage,
 } from "../helpers/PayloadMapper.js";
 import { decodeAuthorizationToken } from "../middlewares/Auth.js";
 
@@ -19,7 +20,7 @@ export const addDelivery = async (req, res) => {
     await deliveryModel
       .create({
         createdBy: email,
-        updatedBy: email,
+        lastUpdatedBy: email,
         currentStatus: "Created",
         estimatedDeliveryCost: calculateShippingCost(
           request.placeOfDeparture.departureRegion,
@@ -106,20 +107,21 @@ export const getDeliveriesTableContent = async (req, res) => {
 
 export const updateDelivery = async (req, res) => {
   try {
+    const { email, userId } = decodeAuthorizationToken(
+      req.headers.authorization
+    );
     const deliveryUpdates = req.body;
     await deliveryModel
       .updateOne(
         {
           _id: req.params.id,
         },
-        deliveryUpdates
+        { lastUpdatedBy: email, ...deliveryUpdates }
       )
-      .then(async (updatedDelivery) => {
-        if (!updatedDelivery)
-          throw new Error(`Delivery: ${req.params.id} could not be updated!`);
-
+      .then(async () => {
+        const updatedDelivery = await deliveryModel.findById(req.params.id);
         const messageModel = mapDeliveryUpdateMessage(
-          updatedDelivery.updatedBy,
+          updatedDelivery.lastUpdatedBy,
           updatedDelivery._id,
           updatedDelivery.updatedAt
         );
@@ -194,6 +196,58 @@ export const getDeliveriesInformation = async (req, res) => {
         assignedTransports: assignedTransports,
       },
     });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const cancelDelivery = async (req, res) => {
+  try {
+    const hasAssignedTransport = await transportModel
+      .find()
+      .where("assignedShipment", req.body.deliveryId)
+      .countDocuments();
+
+    if (hasAssignedTransport)
+      throw new Error(
+        `Delivery ${req.body.deliveryId} has been assigned to a transport and it can't be deleted`
+      );
+
+    await deliveryModel
+      .findById(req.body.deliveryId)
+      .then(async (foundDelivery) => {
+        if (!foundDelivery)
+          throw new Error(
+            `No delivery with id ${req.body.deliveryId} was found!`
+          );
+
+        const { email, userId } = decodeAuthorizationToken(
+          req.headers.authorization
+        );
+
+        foundDelivery.currentStatus = "Cancelled";
+        foundDelivery.lastUpdatedBy = email;
+
+        await foundDelivery.save().then(async (updatedDelivery) => {
+          if (!updatedDelivery)
+            throw new Error(
+              `Delivery ${foundDelivery._id} could not be updated!`
+            );
+
+          const messageModel = mapCancelDeliveryMessage(
+            email,
+            updatedDelivery._id,
+            updatedDelivery.updatedAt
+          );
+          await messagesModel.create(messageModel);
+
+          res.status(200).json({
+            msg: `Delivery ${updatedDelivery._id} has been cancelled successfully!`,
+          });
+        });
+      });
   } catch (error) {
     res.status(500).json({
       msg: error.message,

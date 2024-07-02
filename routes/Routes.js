@@ -21,6 +21,8 @@ import {
   deleteTransport,
   assignDelivery,
   getTransportsTableContent,
+  getDeliveryAssignInformation,
+  unassignDelivery,
 } from "../controllers/TransportsController.js";
 import {
   addClient,
@@ -37,6 +39,7 @@ import {
   deleteDelivery,
   getDeliveriesInformation,
   getDeliveriesTableContent,
+  cancelDelivery,
 } from "../controllers/DeliveriesController.js";
 import { getDashboardMetrics } from "../controllers/DashboardController.js";
 import { newClientHandler } from "../helpers/Handlers.js";
@@ -70,9 +73,11 @@ router.route("/add-transport").post(addTransport);
 router.route("/get-transports").post(getTransports);
 router.route("/get-available-transports").post(getAvailableTransports);
 router.route("/update-transport/:id").patch(updateTransport);
-router.route("/delete-transport/:id").delete(deleteTransport);
-router.route("/assign-delivery/:id").patch(assignDelivery);
+router.route("/delete-transport").post(deleteTransport);
+router.route("/assign-transport-delivery").post(assignDelivery);
+router.route("/unassign-transport-delivery").post(unassignDelivery);
 router.route("/get-transports-table").post(getTransportsTableContent);
+router.route("/get-available-deliveries").post(getDeliveryAssignInformation);
 
 //Clients
 router.route("/add-client").post(newClientHandler, addClient);
@@ -89,6 +94,7 @@ router.route("/update-delivery/:id").patch(updateDelivery);
 router.route("/delete-delivery/:id").delete(deleteDelivery);
 router.route("/get-deliveries-information").get(getDeliveriesInformation);
 router.route("/get-deliveries-table").post(getDeliveriesTableContent);
+router.route("/cancel-delivery").post(cancelDelivery);
 
 //Dashboard
 router.route("/get-dashboard-metrics").get(getDashboardMetrics);

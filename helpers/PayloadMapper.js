@@ -72,10 +72,12 @@ export const mapDeliverySuccess = (updatedOrder) => {
   };
 };
 
-export const mapAddNewTransport = (transportRequest) => {
+export const mapAddNewTransport = (transportRequest, email) => {
   return {
     currentStatus: "Ready",
     assignedShipment: null,
+    createdBy: email,
+    lastUpdatedBy: email,
     ...transportRequest,
   };
 };
@@ -317,6 +319,30 @@ export const mapUpdateOrderMessage = (updatedBy, orderId) => {
     shortMessage: "An order has been force-updated!",
     longMessage: `Order ${orderId} has been updated through the ShippingApp Dashboard. Updated by ${updatedBy}`,
     referenceId: orderId,
+    messageStatus: "Unseen",
+  };
+};
+
+export const mapAddTransportMessage = (createdBy, transportId) => {
+  return {
+    from: createdBy,
+    shortMessage: "A new transport has been created!",
+    longMessage: `A new transport has been created. Transport id: ${transportId}. Created by ${createdBy}`,
+    referenceId: transportId,
+    messageStatus: "Unseen",
+  };
+};
+
+export const mapCancelDeliveryMessage = (
+  updatedBy,
+  deliveryId,
+  cancelledAt
+) => {
+  return {
+    from: updatedBy,
+    shortMessage: "A delivery has been cancelled",
+    longMessage: `Delivery ${deliveryId} has been cancelled by ${updatedBy}. Cancellation time ${cancelledAt}`,
+    referenceId: deliveryId,
     messageStatus: "Unseen",
   };
 };

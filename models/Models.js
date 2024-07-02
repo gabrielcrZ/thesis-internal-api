@@ -146,6 +146,7 @@ const transportModel = mongoose.model(
       transportLocation: {
         type: {
           transportRegion: String,
+          transportCountry: String,
           transportCity: String,
         },
         _id: false,
@@ -179,6 +180,16 @@ const transportModel = mongoose.model(
           true,
           "Contact person information is required for the transport",
         ],
+      },
+      createdBy: {
+        type: String,
+        required: [true, "No creator specified for this transport!"],
+        match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g, "Created by is invalid!"],
+      },
+      lastUpdatedBy: {
+        type: String,
+        required: [true, "No updater specified for this transport!"],
+        match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g, "Updated by is invalid!"],
       },
     },
     {
@@ -231,7 +242,7 @@ const deliveryModel = mongoose.model(
         required: [true, "No creator specified for this delivery!"],
         match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g, "Created by is invalid!"],
       },
-      updatedBy: {
+      lastUpdatedBy: {
         type: String,
         required: [true, "No updater specified for this delivery!"],
         match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g, "Updated by is invalid!"],

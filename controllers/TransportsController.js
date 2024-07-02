@@ -39,6 +39,28 @@ export const getTransports = async (req, res) => {
   }
 };
 
+export const getTransportsTableContent = async (req, res) => {
+  try {
+    const page = req.body.pagination;
+    const offset = (page - 1) * 5;
+
+    await transportModel
+      .find()
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(5)
+      .then((foundTransports) => {
+        res.status(200).json({
+          transports: foundTransports,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
 export const getAvailableTransports = async (req, res) => {
   try {
     await transportModel
@@ -144,3 +166,6 @@ export const assignDelivery = async (req, res) => {
     });
   }
 };
+
+export const unassignDelivery = () => {};
+export const completeDelivery = () => {};

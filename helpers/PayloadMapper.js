@@ -1,3 +1,5 @@
+import { convertMongoCurrency } from "./Helpers.js";
+
 export const mapCancelUpdate = (updatedOrder) => {
   return {
     operationType: "Cancel",
@@ -230,7 +232,9 @@ export const mapNewDeliveryMessage = (
   return {
     from: createdBy,
     shortMessage: "A new delivery has been created!",
-    longMessage: `Delivery: ${deliveryId} has been created. Pickup location: ${pickupLocation}, delivery to: ${deliveryLocation} with estimated cost: ${estimatedCost}`,
+    longMessage: `Delivery: ${deliveryId} has been created. Pickup location: ${pickupLocation}, delivery to: ${deliveryLocation} with estimated cost: ${convertMongoCurrency(
+      estimatedCost
+    )}`,
     referenceId: deliveryId,
     messageStatus: "Unseen",
   };

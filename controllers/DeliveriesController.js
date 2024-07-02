@@ -1,15 +1,25 @@
-import { deliveryModel, messagesModel } from "../models/Models.js";
+import {
+  deliveryModel,
+  messagesModel,
+  transportModel,
+} from "../models/Models.js";
 import { calculateShippingCost } from "../helpers/ShippingCostCalculation.js";
 import {
   mapNewDeliveryMessage,
   mapDeliveryUpdateMessage,
 } from "../helpers/PayloadMapper.js";
+import { decodeAuthorizationToken } from "../middlewares/Auth.js";
 
 export const addDelivery = async (req, res) => {
   try {
     const request = req.body;
+    const { email, userId } = decodeAuthorizationToken(
+      req.headers.authorization
+    );
     await deliveryModel
       .create({
+        createdBy: email,
+        updatedBy: email,
         currentStatus: "Created",
         estimatedDeliveryCost: calculateShippingCost(
           request.placeOfDeparture.departureRegion,
@@ -72,6 +82,28 @@ export const getDelivery = async (req, res) => {
   }
 };
 
+export const getDeliveriesTableContent = async (req, res) => {
+  try {
+    const page = req.body.pagination;
+    const offset = (page - 1) * 5;
+
+    await deliveryModel
+      .find()
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(5)
+      .then((foundDeliveries) => {
+        res.status(200).json({
+          deliveries: foundDeliveries,
+        });
+      });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
 export const updateDelivery = async (req, res) => {
   try {
     const deliveryUpdates = req.body;
@@ -115,6 +147,53 @@ export const deleteDelivery = async (req, res) => {
           msg: `Delivery ${req.params.id} has been deleted`,
         });
       });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const getDeliveriesInformation = async (req, res) => {
+  try {
+    const unprocessedDeliveries = await deliveryModel
+      .find()
+      .where("currentStatus", "Created")
+      .countDocuments();
+    const processedDeliveries = await deliveryModel
+      .find()
+      .where("currentStatus", "Assigned to transport")
+      .countDocuments();
+    const completedDeliveries = await deliveryModel
+      .find()
+      .where("currentStatus", "Completed")
+      .countDocuments();
+
+    const readyTransports = await transportModel
+      .find()
+      .where("currentStatus", "Ready")
+      .countDocuments();
+    const assignedTransports = await transportModel
+      .find()
+      .where("currentStatus", "Assigned to delivery")
+      .countDocuments();
+    const transitTransports = await transportModel
+      .find()
+      .where("currentStatus", "In transit")
+      .countDocuments();
+
+    res.status(200).json({
+      deliveries: {
+        unprocessedDeliveries: unprocessedDeliveries,
+        processedDeliveries: processedDeliveries,
+        completedDeliveries: completedDeliveries,
+      },
+      transports: {
+        readyTransports: readyTransports,
+        transitTransports: transitTransports,
+        assignedTransports: assignedTransports,
+      },
+    });
   } catch (error) {
     res.status(500).json({
       msg: error.message,

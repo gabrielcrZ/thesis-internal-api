@@ -30,6 +30,8 @@ import {
   getClient,
   updateClient,
   deleteClient,
+  getPaginatedClients,
+  getClientContentDetails,
 } from "../controllers/ClientsController.js";
 import {
   addDelivery,
@@ -43,10 +45,15 @@ import {
 } from "../controllers/DeliveriesController.js";
 import { getDashboardMetrics } from "../controllers/DashboardController.js";
 import { newClientHandler } from "../helpers/Handlers.js";
-import { addUser, requireToken } from "../controllers/UsersController.js";
+import {
+  addUser,
+  getUserDetails,
+  requireToken,
+} from "../controllers/UsersController.js";
 import { newUserHandler, tokenRequestHandler } from "../middlewares/Auth.js";
 import {
   getMessages,
+  getPaginatedMessages,
   getUncheckedMessages,
   updateMessageStatus,
 } from "../controllers/MessagesController.js";
@@ -84,7 +91,9 @@ router.route("/add-client").post(newClientHandler, addClient);
 router.route("/get-clients").post(getClients);
 router.route("/get-client/:id").get(getClient);
 router.route("/update-client/:id").patch(updateClient);
-router.route("/delete-client/:id").delete(deleteClient);
+router.route("/delete-client").post(deleteClient);
+router.route("/get-paginated-clients").post(getPaginatedClients);
+router.route("/get-client-content/:id").get(getClientContentDetails);
 
 //Deliveries
 router.route("/add-delivery").post(addDelivery);
@@ -102,9 +111,11 @@ router.route("/get-dashboard-metrics").get(getDashboardMetrics);
 //Users
 router.route("/add-user").post(newUserHandler, addUser);
 router.route("/require-token").post(tokenRequestHandler, requireToken);
+router.route("/get-user-details").post(getUserDetails);
 
 //Messages
 router.route("/get-unchecked-messages").get(getUncheckedMessages);
-router.route("/get-messages").get(getMessages);
-router.route("/update-message").patch(updateMessageStatus);
+router.route("/get-messages-count").get(getMessages);
+router.route("/update-message").post(updateMessageStatus);
+router.route("/get-paginated-messages").post(getPaginatedMessages);
 export default router;

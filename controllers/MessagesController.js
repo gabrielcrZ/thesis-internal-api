@@ -2,19 +2,8 @@ import { messagesModel } from "../models/Models.js";
 
 export const getMessages = async (req, res) => {
   try {
-    const page = req.body.pageNumber;
-    const offset = (page - 1) * 15;
-
-    let paginatedMessages;
     let uncheckedMessages;
     let allMessages;
-
-    await messagesModel
-      .find({})
-      .sort({ createdAt: "desc" })
-      .skip(offset)
-      .limit(15)
-      .then((foundMessages) => (paginatedMessages = foundMessages));
 
     await messagesModel
       .find({ messageStatus: "Unseen" })
@@ -25,7 +14,6 @@ export const getMessages = async (req, res) => {
       .then((foundMessages) => (allMessages = foundMessages.length));
 
     res.status(200).json({
-      messages: paginatedMessages,
       inbox: allMessages,
       unchecked: uncheckedMessages,
     });
@@ -39,12 +27,12 @@ export const getMessages = async (req, res) => {
 export const updateMessageStatus = async (req, res) => {
   try {
     await messagesModel
-      .findOneAndUpdate({ _id: req.messageId }, { messageStatus: "Seen" })
+      .findOneAndUpdate({ _id: req.body.messageId }, { messageStatus: "Seen" })
       .then((updatedMessage) => {
         if (!updatedMessage) throw new Error("Message could not be updated!");
 
         res.status(200).json({
-          msg: `Message: ${req.messageId} has been updated to status: Seen`,
+          msg: `Message: ${req.body.messageId} has been updated to status: Seen`,
         });
       });
   } catch (error) {
@@ -64,6 +52,27 @@ export const getUncheckedMessages = async (req, res) => {
 
     res.status(200).json({
       count: uncheckedMessages,
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
+
+export const getPaginatedMessages = async (req, res) => {
+  try {
+    const page = req.body.pageNumber;
+    const offset = (page - 1) * 10;
+    let paginatedMessages;
+    await messagesModel
+      .find()
+      .sort({ createdAt: "desc" })
+      .skip(offset)
+      .limit(10)
+      .then((foundMessages) => (paginatedMessages = foundMessages));
+    res.status(200).json({
+      paginatedMessages: paginatedMessages,
     });
   } catch (error) {
     res.status(500).json({

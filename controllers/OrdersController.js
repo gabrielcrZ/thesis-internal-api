@@ -200,7 +200,7 @@ export const getOrdersTableContents = async (req, res) => {
       await orderModel
         .find(orderFilter)
         .where(
-          `${isClientFiltering ? "pickupDetails.pickupClient.clientName" : ""}`,
+          "pickupDetails.pickupClient.clientName",
           req.body.filters.clientName || ""
         )
         .where("createdAt")

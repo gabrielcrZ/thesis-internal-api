@@ -2,30 +2,42 @@ import mongoose, { Mongoose } from "mongoose";
 
 const clientModel = mongoose.model(
   "Client",
-  new mongoose.Schema({
-    email: {
-      type: String,
-      required: [true, "No email provided!"],
-      match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g, "Email address is invalid!"],
-      unique: true,
+  new mongoose.Schema(
+    {
+      email: {
+        type: String,
+        required: [true, "No email provided!"],
+        match: [
+          /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+          "Email address is invalid!",
+        ],
+        unique: true,
+      },
+      clientCode: {
+        type: String,
+        required: [true, "Client code is invalid!"],
+      },
+      clientName: {
+        type: String,
+        required: [true, "No client name provided!"],
+      },
+      clientAddress: {
+        type: Object,
+        required: [true, "No client address information provided!"],
+      },
+      clientPhone: {
+        type: String,
+        required: [true, "No phone number provided"],
+      },
+      lastUpdatedBy: {
+        type: String,
+        required: [true, "No last updater was provided"],
+      },
     },
-    clientCode: {
-      type: String,
-      required: [true, "Client code is invalid!"],
-    },
-    clientName: {
-      type: String,
-      required: [true, "No client name provided!"],
-    },
-    clientAddress: {
-      type: Object,
-      required: [true, "No client address information provided!"],
-    },
-    clientPhone: {
-      type: String,
-      required: [true, "No phone number provided"],
-    },
-  })
+    {
+      timestamps: true,
+    }
+  )
 );
 
 const orderModel = mongoose.model(
@@ -41,6 +53,7 @@ const orderModel = mongoose.model(
           {
             productDescription: String,
             productWeight: String,
+            productCategory: String,
             _id: false,
           },
         ],

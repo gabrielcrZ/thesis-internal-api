@@ -214,12 +214,12 @@ export const mapClientUpdateMessage = (clientEmail, clientId) => {
   };
 };
 
-export const mapClientDeleteMessage = (clientEmail) => {
+export const mapClientDeleteMessage = (clientEmail, email, userId) => {
   return {
-    from: clientEmail,
-    shortMessage: "A client has deleted his account!",
-    longMessage: `Client: ${clientEmail} has deleted his account`,
-    referenceId: null,
+    from: email,
+    shortMessage: "A client account has been deleted!",
+    longMessage: `Client: ${clientEmail} has been deleted by ${email}`,
+    referenceId: userId,
     messageStatus: "Unseen",
   };
 };

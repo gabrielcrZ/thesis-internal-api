@@ -19,10 +19,10 @@ export const addClient = async (req, res) => {
         req.body.clientPhone
       );
       await messagesModel.create(messageModel);
-    });
 
-    res.status(200).json({
-      msg: `User ${newClient.id} created!`,
+      res.status(200).json({
+        msg: `User ${newClient.id} created!`,
+      });
     });
   } catch (error) {
     res.status(500).json({

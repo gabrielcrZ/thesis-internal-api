@@ -151,7 +151,7 @@ export const getDashboardTableContents = async (req, res) => {
     const offset = (page - 1) * 5;
     await orderModel
       .find()
-      .sort("createdAt")
+      .sort({createdAt: "desc"})
       .skip(offset)
       .limit(5)
       .then((clientOrders) => {
@@ -210,7 +210,7 @@ export const getOrdersTableContents = async (req, res) => {
         .lte(
           req.body.timeFilter?.endDate || `${new Date().getFullYear()}-12-31`
         )
-        .sort("createdAt")
+        .sort({createdAt: "desc"})
         .skip(offset)
         .limit(15)
         .then((clientOrders) => {
@@ -226,7 +226,7 @@ export const getOrdersTableContents = async (req, res) => {
         req.body.timeFilter?.startDate || `${new Date().getFullYear()}-01-01`
       )
       .lte(req.body.timeFilter?.endDate || `${new Date().getFullYear()}-12-31`)
-      .sort("createdAt")
+      .sort({createdAt: "desc"})
       .skip(offset)
       .limit(15)
       .then((clientOrders) => {

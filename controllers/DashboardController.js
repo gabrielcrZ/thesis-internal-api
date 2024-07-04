@@ -1,12 +1,11 @@
 import {
-  clientModel,
   orderModel,
   ordersHistoryModel,
   deliveryModel,
 } from "../models/Models.js";
 
 export const getDashboardMetrics = async (req, res) => {
-  const cardsInfo = {
+  let cardsInfo = {
     totalOrders: 0,
     unprocessedOrders: {
       thisYear: 0,
@@ -21,7 +20,7 @@ export const getDashboardMetrics = async (req, res) => {
       lastYear: 0,
     },
   };
-  const stackedBarChartInfo = {
+  let stackedBarChartInfo = {
     pickedUp: {
       Q1: 0,
       Q2: 0,
@@ -41,7 +40,7 @@ export const getDashboardMetrics = async (req, res) => {
       Q4: 0,
     },
   };
-  const barChartInfo = {
+  let barChartInfo = {
     Q1: {
       currentYear: 0,
       lastYear: 0,
@@ -59,7 +58,7 @@ export const getDashboardMetrics = async (req, res) => {
       lastYear: 0,
     },
   };
-  const lineChartInfo = {
+  let lineChartInfo = {
     Q1: 0,
     Q2: 0,
     Q3: 0,

@@ -294,4 +294,6 @@ export const unassignDelivery = async (req, res) => {
     });
   }
 };
-export const completeDelivery = () => {};
+export const completeDelivery = () => {
+  
+};
